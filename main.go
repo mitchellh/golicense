@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+	"github.com/mitchellh/golicense/module"
 	"github.com/rsc/goversion/version"
 )
 
@@ -43,7 +44,17 @@ func realMain() int {
 		return 1
 	}
 
-	println(fmt.Sprintf("%#v", vsn))
+	mods, err := module.ParseExeData(vsn.ModuleInfo)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+			"❗️ Error parsing dependencies: %s", err)))
+		return 1
+	}
+
+	for _, m := range mods {
+		println(fmt.Sprintf("%s\t%s", m.Path, m.Version))
+	}
+
 	return 0
 }
 

@@ -6,6 +6,10 @@ import (
 )
 
 // Module represents a single Go module.
+//
+// Depending on the source that this is parsed from, fields may be empty.
+// All helper functions on Module work with zero values. See their associated
+// documentation for more information on exact behavior.
 type Module struct {
 	Path    string // Import path, such as "github.com/mitchellh/golicense"
 	Version string // Version like "v1.2.3"
