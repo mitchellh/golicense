@@ -1,5 +1,7 @@
 package license
 
+//go:generate mockery -all -inpkg
+
 // License represents a software license.
 type License struct {
 	Name string // Name is a human-friendly name like "MIT License"
