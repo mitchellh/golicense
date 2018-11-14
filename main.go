@@ -1,13 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/fatih/color"
-	"github.com/mitchellh/golicense/module"
+	"github.com/google/go-github/v18/github"
 	"github.com/rsc/goversion/version"
+
+	"github.com/mitchellh/golicense/license"
+	githubFinder "github.com/mitchellh/golicense/license/github"
+	"github.com/mitchellh/golicense/module"
 )
 
 func main() {
@@ -51,8 +56,21 @@ func realMain() int {
 		return 1
 	}
 
+	fs := []license.Finder{
+		&githubFinder.RepoAPI{
+			Client: github.NewClient(nil),
+		},
+	}
+
 	for _, m := range mods {
-		println(fmt.Sprintf("%s\t%s", m.Path, m.Version))
+		l, err := license.Find(context.Background(), m, fs)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
+				"⚠️  %q: %s", m, err)))
+			continue
+		}
+
+		println(fmt.Sprintf("%s\t%s", m.String(), l.String()))
 	}
 
 	return 0
