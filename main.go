@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/google/go-github/v18/github"
@@ -62,19 +63,33 @@ func realMain() int {
 		},
 	}
 
-	for _, m := range mods {
-		l, err := license.Find(context.Background(), m, fs)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
-				"⚠️  %q: %s", m, err)))
-			continue
-		}
+	o := &TermOutput{Out: os.Stdout}
+	ctx := context.Background()
 
-		println(fmt.Sprintf("%s\t%s", m.String(), l.String()))
+	// Kick off all the license lookups.
+	var wg sync.WaitGroup
+	sem := NewSemaphore(5)
+	for _, m := range mods {
+		wg.Add(1)
+		go func(m module.Module) {
+			defer wg.Done()
+
+			// Acquire a semaphore so that we can limit concurrency
+			sem.Acquire()
+			defer sem.Release()
+
+			// Build the context
+			ctx := license.StatusWithContext(ctx, StatusListener(o, &m))
+
+			// Lookup
+			o.Start(&m)
+			lic, err := license.Find(ctx, m, fs)
+			o.Finish(&m, lic, err)
+		}(m)
 	}
 
-	return 0
-}
+	// Wait for all lookups to complete
+	wg.Wait()
 
-func printError() {
+	return 0
 }
