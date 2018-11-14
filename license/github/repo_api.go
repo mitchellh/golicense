@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"time"
 
@@ -32,10 +33,14 @@ func (f *RepoAPI) License(ctx context.Context, m module.Module) (*license.Licens
 	}
 
 FETCH_RETRY:
+	license.UpdateStatus(ctx, license.StatusNormal, "querying license")
 	rl, _, err := f.Client.Repositories.License(ctx, matches[1], matches[2])
 	if rateErr, ok := err.(*github.RateLimitError); ok {
-		timer := time.NewTimer(time.Until(rateErr.Rate.Reset.Time))
+		dur := time.Until(rateErr.Rate.Reset.Time)
+		timer := time.NewTimer(dur)
 		defer timer.Stop()
+		license.UpdateStatus(ctx, license.StatusWarning, fmt.Sprintf(
+			"rate limited, waiting %s", dur))
 
 		select {
 		case <-ctx.Done():
