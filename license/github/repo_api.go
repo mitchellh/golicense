@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"regexp"
+	"time"
 
 	"github.com/google/go-github/v18/github"
 	"github.com/mitchellh/golicense/license"
@@ -30,7 +31,22 @@ func (f *RepoAPI) License(ctx context.Context, m module.Module) (*license.Licens
 		return nil, nil
 	}
 
+FETCH_RETRY:
 	rl, _, err := f.Client.Repositories.License(ctx, matches[1], matches[2])
+	if rateErr, ok := err.(*github.RateLimitError); ok {
+		timer := time.NewTimer(time.Until(rateErr.Rate.Reset.Time))
+		defer timer.Stop()
+
+		select {
+		case <-ctx.Done():
+			// Context cancelled or ended so return early
+			return nil, ctx.Err()
+
+		case <-timer.C:
+			// Rate limit should be up, retry
+			goto FETCH_RETRY
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
