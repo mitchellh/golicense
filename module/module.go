@@ -2,6 +2,7 @@ package module
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -14,6 +15,11 @@ type Module struct {
 	Path    string // Import path, such as "github.com/mitchellh/golicense"
 	Version string // Version like "v1.2.3"
 	Hash    string // Hash such as "h1:abcd1234"
+}
+
+// String returns a human readable string format.
+func (m *Module) String() string {
+	return fmt.Sprintf("%s (%s)", m.Path, m.Version)
 }
 
 // ParseExeData parses the raw dependency information from a compiled Go
@@ -33,6 +39,12 @@ func ParseExeData(raw string) ([]Module, error) {
 				"Unexpected raw dependency format: %s", line)
 		}
 
+		// If the path ends in an import version, strip it since we have
+		// an exact version available in Version.
+		if loc := importVersionRe.FindStringIndex(row[1]); loc != nil {
+			row[1] = row[1][:loc[0]]
+		}
+
 		result = append(result, Module{
 			Path:    row[1],
 			Version: row[2],
@@ -42,3 +54,8 @@ func ParseExeData(raw string) ([]Module, error) {
 
 	return result, nil
 }
+
+// importVersionRe is a regular expression that matches the trailing
+// import version specifiers like `/v12` on an import that is Go modules
+// compatible.
+var importVersionRe = regexp.MustCompile(`/v\d+$`)

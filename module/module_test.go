@@ -37,6 +37,11 @@ func TestParseExeData(t *testing.T) {
 					Version: "v1.2.0",
 					Hash:    "h1:zVF4y5ciA/rw779S62bEAq4Yif1cBc/UwRkXJ2xZyT4=",
 				},
+				Module{
+					Path:    "github.com/rsc/goversion",
+					Version: "v12.0.0",
+					Hash:    "h1:zVF4y5ciA/rw779S62bEAq4Yif1cBc/UwRkXJ2xZyT4=",
+				},
 			},
 			"",
 		},
@@ -57,4 +62,4 @@ func TestParseExeData(t *testing.T) {
 	}
 }
 
-const testExeData = "path\tgithub.com/mitchellh/golicense\nmod\tgithub.com/mitchellh/golicense\t(devel)\t\ndep\tgithub.com/fatih/color\tv1.7.0\th1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=\ndep\tgithub.com/mattn/go-colorable\tv0.0.9\th1:UVL0vNpWh04HeJXV0KLcaT7r06gOH2l4OW6ddYRUIY4=\ndep\tgithub.com/mattn/go-isatty\tv0.0.4\th1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=\ndep\tgithub.com/rsc/goversion\tv1.2.0\th1:zVF4y5ciA/rw779S62bEAq4Yif1cBc/UwRkXJ2xZyT4=\n"
+const testExeData = "path\tgithub.com/mitchellh/golicense\nmod\tgithub.com/mitchellh/golicense\t(devel)\t\ndep\tgithub.com/fatih/color\tv1.7.0\th1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=\ndep\tgithub.com/mattn/go-colorable\tv0.0.9\th1:UVL0vNpWh04HeJXV0KLcaT7r06gOH2l4OW6ddYRUIY4=\ndep\tgithub.com/mattn/go-isatty\tv0.0.4\th1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=\ndep\tgithub.com/rsc/goversion\tv1.2.0\th1:zVF4y5ciA/rw779S62bEAq4Yif1cBc/UwRkXJ2xZyT4=\ndep\tgithub.com/rsc/goversion/v12\tv12.0.0\th1:zVF4y5ciA/rw779S62bEAq4Yif1cBc/UwRkXJ2xZyT4=\n"
