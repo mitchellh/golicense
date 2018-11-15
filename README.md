@@ -29,30 +29,21 @@ The example below runs `golicense` against itself from a recent build.
 
 ```
 $ golicense ./golicense
-github.com/agext/levenshtein         Apache License 2.0
-github.com/apparentlymart/go-textseg Other
-github.com/davecgh/go-spew           ISC License
-github.com/fatih/color               MIT License
-github.com/google/go-cmp             BSD 3-Clause "New" or "Revised" License
-github.com/google/go-github          BSD 3-Clause "New" or "Revised" License
-github.com/google/go-querystring     BSD 3-Clause "New" or "Revised" License
-github.com/gosuri/uilive             MIT License
-github.com/hashicorp/errwrap         Mozilla Public License 2.0
-github.com/hashicorp/go-multierror   Mozilla Public License 2.0
-github.com/hashicorp/hcl2            Mozilla Public License 2.0
-github.com/mattn/go-colorable        MIT License
-github.com/mattn/go-isatty           MIT License
-github.com/mitchellh/go-wordwrap     MIT License
-github.com/pmezard/go-difflib        Other
-github.com/rsc/goversion             BSD 3-Clause "New" or "Revised" License
-github.com/stretchr/objx             MIT License
-github.com/stretchr/testify          Other
-github.com/zclconf/go-cty            MIT License
-golang.org/x/crypto                  Other
-golang.org/x/net                     Other
-golang.org/x/oauth2                  BSD 3-Clause "New" or "Revised" License
-golang.org/x/sys                     Other
-golang.org/x/text                    Other
+github.com/agext/levenshtein              Apache License 2.0
+github.com/apparentlymart/go-textseg      Apache-2.0
+github.com/davecgh/go-spew                ISC License
+github.com/dgryski/go-minhash             MIT License
+github.com/ekzhu/minhash-lsh              MIT License
+github.com/emirpasic/gods                 BSD-2-Clause
+github.com/fatih/color                    MIT License
+github.com/google/go-cmp                  BSD 3-Clause "New" or "Revised" License
+github.com/google/go-github               BSD 3-Clause "New" or "Revised" License
+github.com/google/go-querystring          BSD 3-Clause "New" or "Revised" License
+github.com/gosuri/uilive                  MIT License
+github.com/hashicorp/errwrap              Mozilla Public License 2.0
+github.com/hashicorp/go-multierror        Mozilla Public License 2.0
+github.com/hashicorp/hcl2                 Mozilla Public License 2.0
+...
 ```
 
 ## Usage
