@@ -39,6 +39,7 @@ type TermOutput struct {
 
 	modules   map[string]string
 	moduleMax int
+	lineMax   int
 	live      *uilive.Writer
 	once      sync.Once
 	lock      sync.Mutex
@@ -138,6 +139,8 @@ func (o *TermOutput) paddedModule(m *module.Module) string {
 //
 // lock must be held.
 func (o *TermOutput) pauseLive(f func()) {
+	o.live.Write([]byte(strings.Repeat(" ", o.lineMax) + "\n"))
+	o.live.Flush()
 	o.live.Write([]byte(" "))
 	o.live.Stop()
 	f()
@@ -157,7 +160,11 @@ func (o *TermOutput) updateLiveOutput() {
 
 	var buf bytes.Buffer
 	for _, k := range keys {
-		buf.WriteString(o.modules[k] + "\n")
+		if v := len(o.modules[k]); v > o.lineMax {
+			o.lineMax = v
+		}
+
+		buf.WriteString(o.modules[k] + strings.Repeat(" ", o.lineMax-len(o.modules[k])) + "\n")
 	}
 
 	o.live.Write(buf.Bytes())
