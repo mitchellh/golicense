@@ -44,10 +44,15 @@ type TermOutput struct {
 
 	modules   map[string]string
 	moduleMax int
+	exitCode  int
 	lineMax   int
 	live      *uilive.Writer
 	once      sync.Once
 	lock      sync.Mutex
+}
+
+func (o *TermOutput) ExitCode() int {
+	return o.exitCode
 }
 
 // Start implements Output
@@ -121,10 +126,12 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 		case config.StateDenied:
 			colorFunc = color.RedString
 			icon = iconError
+			o.exitCode = 1
 
 		case config.StateUnknown:
 			colorFunc = color.YellowString
 			icon = iconWarning
+			o.exitCode = 1
 		}
 	}
 	if icon != "" {

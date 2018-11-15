@@ -170,7 +170,7 @@ func realMain() int {
 		return 1
 	}
 
-	return 0
+	return out.ExitCode()
 }
 
 func printHelp(fs *flag.FlagSet) {
