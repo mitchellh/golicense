@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/fatih/color"
@@ -13,10 +14,12 @@ import (
 	"github.com/rsc/goversion/version"
 	"golang.org/x/oauth2"
 
+	"github.com/mitchellh/golicense/config"
 	"github.com/mitchellh/golicense/license"
 	githubFinder "github.com/mitchellh/golicense/license/github"
 	"github.com/mitchellh/golicense/license/golang"
 	"github.com/mitchellh/golicense/license/gopkg"
+	"github.com/mitchellh/golicense/license/mapper"
 	"github.com/mitchellh/golicense/module"
 )
 
@@ -39,17 +42,33 @@ func realMain() int {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, color.RedString(
 			"❗️ Path to file to analyze expected.\n\n"))
-		flag.Usage()
+		printHelp(flags)
 		return 1
-	} else if len(args) > 1 {
+	} else if len(args) > 2 {
 		fmt.Fprintf(os.Stderr, color.RedString(
-			"❗️ Exactly one argument is allowed at a time.\n\n"))
-		flag.Usage()
+			"❗️ Exactly one or two arguments is allowed.\n\n"))
+		printHelp(flags)
 		return 1
 	}
 
+	// Determine the exe path and parse the configuration if given.
+	var cfg config.Config
+	exePath := args[0]
+	if len(args) > 1 {
+		exePath = args[1]
+
+		c, err := config.ParseFile(args[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+				"❗️ Error parsing configuration:\n\n%s\n", err)))
+			return 1
+		}
+
+		cfg = *c
+	}
+
 	// Read the dependencies from the binary itself
-	vsn, err := version.ReadExe(args[0])
+	vsn, err := version.ReadExe(exePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
 			"❗️ Error reading %q: %s\n", args[0], err)))
@@ -93,6 +112,7 @@ func realMain() int {
 
 	// Build our translators and license finders
 	ts := []license.Translator{
+		&mapper.Translator{Map: cfg.Translate},
 		&golang.Translator{},
 		&gopkg.Translator{},
 	}
@@ -136,3 +156,25 @@ func realMain() int {
 
 	return 0
 }
+
+func printHelp(fs *flag.FlagSet) {
+	fmt.Fprintf(os.Stderr, strings.TrimSpace(help)+"\n\n", os.Args[0])
+	fs.PrintDefaults()
+}
+
+const help = `
+golicense analyzes the dependencies of a binary compiled from Go.
+
+Usage: %[1]s [flags] [BINARY]
+Usage: %[1]s [flags] [CONFIG] [BINARY]
+
+One or two arguments can be given: a binary by itself which will output
+all the licenses of dependencies, or a configuration file and a binary
+which also notes which licenses are allowed among other settings.
+
+For full help text, see the README in the GitHub repository:
+http://github.com/mitchellh/golicense
+
+Flags:
+
+`

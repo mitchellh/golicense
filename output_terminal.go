@@ -12,6 +12,7 @@ import (
 	"github.com/gosuri/uilive"
 	"golang.org/x/crypto/ssh/terminal"
 
+	"github.com/mitchellh/golicense/config"
 	"github.com/mitchellh/golicense/license"
 	"github.com/mitchellh/golicense/module"
 )
@@ -22,6 +23,10 @@ type TermOutput struct {
 	// automatically use a "live" updating output mode for status updates.
 	// This can be disabled by setting Plain to true below.
 	Out io.Writer
+
+	// Config is the configuration (if any). This will be used to check
+	// if a license is allowed or not.
+	Config *config.Config
 
 	// Modules is the full list of modules that will be checked. This is
 	// optional. If this is given in advance, then the output will be cleanly
@@ -84,10 +89,13 @@ func (o *TermOutput) Update(m *module.Module, t license.StatusType, msg string) 
 		icon = iconError
 		colorFunc = color.RedString
 	}
+	if icon != "" {
+		icon += " "
+	}
 
 	o.lock.Lock()
 	defer o.lock.Unlock()
-	o.modules[m.Path] = colorFunc("%s %s %s", icon, o.paddedModule(m), msg)
+	o.modules[m.Path] = colorFunc("%s%s %s", icon, o.paddedModule(m), msg)
 	o.updateLiveOutput()
 }
 
@@ -101,12 +109,33 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 		return
 	}
 
+	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
+	icon := iconNormal
+	if o.Config != nil {
+		switch o.Config.Allowed(l) {
+		case config.StateAllowed:
+			colorFunc = color.GreenString
+			icon = iconSuccess
+
+		case config.StateDenied:
+			colorFunc = color.RedString
+			icon = iconError
+
+		case config.StateUnknown:
+			colorFunc = color.YellowString
+			icon = iconWarning
+		}
+	}
+	if icon != "" {
+		icon += " "
+	}
+
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	delete(o.modules, m.Path)
 	o.pauseLive(func() {
-		fmt.Fprintf(o.Out, color.GreenString(
-			"%s %s %s\n", iconSuccess, o.paddedModule(m), l.String()))
+		o.live.Write([]byte(colorFunc(
+			"%s%s %s\n", icon, o.paddedModule(m), l.String())))
 	})
 }
 
@@ -116,7 +145,6 @@ func (o *TermOutput) Close() error {
 	defer o.lock.Unlock()
 
 	if o.live != nil {
-		o.live.Write([]byte(" "))
 		o.live.Stop()
 	}
 
@@ -141,9 +169,9 @@ func (o *TermOutput) paddedModule(m *module.Module) string {
 func (o *TermOutput) pauseLive(f func()) {
 	o.live.Write([]byte(strings.Repeat(" ", o.lineMax) + "\n"))
 	o.live.Flush()
-	o.live.Write([]byte(" "))
-	o.live.Stop()
 	f()
+	o.live.Flush()
+	o.live.Stop()
 	o.newLive()
 	o.updateLiveOutput()
 }
@@ -209,7 +237,7 @@ type ioFd interface {
 }
 
 const (
-	iconNormal  = "🔎"
+	iconNormal  = ""
 	iconWarning = "⚠️ "
 	iconError   = "🚫"
 	iconSuccess = "✅"
