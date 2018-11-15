@@ -34,7 +34,11 @@ func main() {
 func realMain() int {
 	out := &TermOutput{Out: os.Stdout}
 
+	var flagLicense bool
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flags.BoolVar(&flagLicense, "license", true,
+		"look up and verify license. If false, dependencies are\n"+
+			"printed without licenses.")
 	flags.BoolVar(&out.Plain, "plain", false, "plain simple output, no colors or live updates")
 	flags.BoolVar(&out.Verbose, "verbose", false, "additional logging, requires -plain")
 	flags.Parse(os.Args[1:])
@@ -116,10 +120,13 @@ func realMain() int {
 		&golang.Translator{},
 		&gopkg.Translator{},
 	}
-	fs := []license.Finder{
-		&githubFinder.RepoAPI{
-			Client: github.NewClient(githubClient),
-		},
+	var fs []license.Finder
+	if flagLicense {
+		fs = []license.Finder{
+			&githubFinder.RepoAPI{
+				Client: github.NewClient(githubClient),
+			},
+		}
 	}
 
 	// Kick off all the license lookups.
