@@ -1,7 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"io"
+	"sort"
+	"strings"
+	"sync"
+
+	"github.com/fatih/color"
+	"github.com/gosuri/uilive"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/mitchellh/golicense/license"
 	"github.com/mitchellh/golicense/module"
@@ -14,17 +23,187 @@ type TermOutput struct {
 	// This can be disabled by setting Plain to true below.
 	Out io.Writer
 
-	modules map[string]struct{}
+	// Modules is the full list of modules that will be checked. This is
+	// optional. If this is given in advance, then the output will be cleanly
+	// aligned.
+	Modules []module.Module
+
+	// Plain, if true, will use the plain output vs the live updating output.
+	// TermOutput will always use Plain output if the Out configured above
+	// is not a TTY.
+	Plain bool
+
+	// Verbose will log all status updates in plain mode. This has no effect
+	// in non-plain mode currently.
+	Verbose bool
+
+	modules   map[string]string
+	moduleMax int
+	live      *uilive.Writer
+	once      sync.Once
+	lock      sync.Mutex
 }
 
 // Start implements Output
-func (o *TermOutput) Start(m *module.Module) {}
+func (o *TermOutput) Start(m *module.Module) {
+	if o.Plain {
+		return
+	}
+
+	o.once.Do(o.init)
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	o.modules[m.Path] = fmt.Sprintf("%s %s starting...", iconNormal, o.paddedModule(m))
+	o.updateLiveOutput()
+}
 
 // Update implements Output
-func (o *TermOutput) Update(m *module.Module, t license.StatusType, msg string) {}
+func (o *TermOutput) Update(m *module.Module, t license.StatusType, msg string) {
+	o.once.Do(o.init)
+
+	// In plain & verbose mode, we output every status message, but in normal
+	// plain mode we ignore all status updates.
+	if o.Plain && o.Verbose {
+		fmt.Fprintf(o.Out, fmt.Sprintf(
+			"%s %s\n", o.paddedModule(m), msg))
+	}
+
+	if o.Plain {
+		return
+	}
+
+	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
+	icon := iconNormal
+	switch t {
+	case license.StatusWarning:
+		icon = iconWarning
+		colorFunc = color.YellowString
+
+	case license.StatusError:
+		icon = iconError
+		colorFunc = color.RedString
+	}
+
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	o.modules[m.Path] = colorFunc("%s %s %s", icon, o.paddedModule(m), msg)
+	o.updateLiveOutput()
+}
 
 // Finish implements Output
-func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {}
+func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
+	o.once.Do(o.init)
+
+	if o.Plain {
+		fmt.Fprintf(o.Out, fmt.Sprintf(
+			"%s %s\n", o.paddedModule(m), l.String()))
+		return
+	}
+
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	delete(o.modules, m.Path)
+	o.pauseLive(func() {
+		fmt.Fprintf(o.Out, color.GreenString(
+			"%s %s %s\n", iconSuccess, o.paddedModule(m), l.String()))
+	})
+}
 
 // Close implements Output
-func (o *TermOutput) Close() error { return nil }
+func (o *TermOutput) Close() error {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+
+	if o.live != nil {
+		o.live.Write([]byte(" "))
+		o.live.Stop()
+	}
+
+	return nil
+}
+
+// paddedModule returns the name of the module padded so that they align nicely.
+func (o *TermOutput) paddedModule(m *module.Module) string {
+	o.once.Do(o.init)
+
+	if o.moduleMax == 0 {
+		return m.Path
+	}
+
+	// Pad the path so that it is equivalent to the moduleMax length
+	return m.Path + strings.Repeat(" ", o.moduleMax-len(m.Path))
+}
+
+// pauseLive pauses the live output for the duration of the function.
+//
+// lock must be held.
+func (o *TermOutput) pauseLive(f func()) {
+	o.live.Write([]byte(" "))
+	o.live.Stop()
+	f()
+	o.newLive()
+	o.updateLiveOutput()
+}
+
+// updateLiveOutput updates the output buffer for live status.
+//
+// lock must be held when this is called
+func (o *TermOutput) updateLiveOutput() {
+	keys := make([]string, 0, len(o.modules))
+	for k := range o.modules {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var buf bytes.Buffer
+	for _, k := range keys {
+		buf.WriteString(o.modules[k] + "\n")
+	}
+
+	o.live.Write(buf.Bytes())
+	o.live.Flush()
+}
+
+func (o *TermOutput) newLive() {
+	o.live = uilive.New()
+	o.live.Out = o.Out
+	o.live.Start()
+}
+
+func (o *TermOutput) init() {
+	if o.modules == nil {
+		o.modules = make(map[string]string)
+	}
+
+	// Calculate the maximum module length
+	for _, m := range o.Modules {
+		if v := len(m.Path); v > o.moduleMax {
+			o.moduleMax = v
+		}
+	}
+
+	// Check if the output is a TTY
+	if !o.Plain {
+		o.Plain = true // default to plain mode unless we can verify TTY
+		if iofd, ok := o.Out.(ioFd); ok {
+			o.Plain = !terminal.IsTerminal(int(iofd.Fd()))
+		}
+
+		if !o.Plain {
+			o.newLive()
+		}
+	}
+}
+
+// ioFd is an interface that is implemented by things that have a file
+// descriptor. We use this to check if the io.Writer is a TTY.
+type ioFd interface {
+	Fd() uintptr
+}
+
+const (
+	iconNormal  = "🔎"
+	iconWarning = "⚠️ "
+	iconError   = "🚫"
+	iconSuccess = "✅"
+)

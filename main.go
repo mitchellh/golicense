@@ -63,7 +63,7 @@ func realMain() int {
 		},
 	}
 
-	o := &TermOutput{Out: os.Stdout}
+	o := &TermOutput{Out: os.Stdout, Modules: mods}
 	ctx := context.Background()
 
 	// Kick off all the license lookups.
@@ -90,6 +90,13 @@ func realMain() int {
 
 	// Wait for all lookups to complete
 	wg.Wait()
+
+	// Close the output
+	if err := o.Close(); err != nil {
+		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+			"❗️ Error: %s\n", err)))
+		return 1
+	}
 
 	return 0
 }
