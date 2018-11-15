@@ -1,5 +1,11 @@
 package config
 
+import (
+	"strings"
+
+	"github.com/mitchellh/golicense/license"
+)
+
 // Config is the configuration structure for the license checker.
 type Config struct {
 	// Allow and Deny are the list of licenses that are allowed or disallowed,
@@ -17,3 +23,38 @@ type Config struct {
 	// gopkg into github (incorrectly, but the example would work).
 	Translate map[string]string `hcl:"translate,optional"`
 }
+
+// Allowed returns the allowed state of a license given the configuration.
+func (c *Config) Allowed(l *license.License) AllowState {
+	if l == nil {
+		return StateDenied // no license is never allowed
+	}
+
+	name := strings.ToLower(l.Name)
+	spdx := strings.ToLower(l.SPDX)
+
+	// Deny takes priority
+	for _, v := range c.Deny {
+		v = strings.ToLower(v)
+		if name == v || spdx == v {
+			return StateDenied
+		}
+	}
+
+	for _, v := range c.Allow {
+		v = strings.ToLower(v)
+		if name == v || spdx == v {
+			return StateAllowed
+		}
+	}
+
+	return StateUnknown
+}
+
+type AllowState int
+
+const (
+	StateUnknown AllowState = iota
+	StateAllowed
+	StateDenied
+)
