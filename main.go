@@ -4,16 +4,22 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"sync"
 
 	"github.com/fatih/color"
 	"github.com/google/go-github/v18/github"
 	"github.com/rsc/goversion/version"
+	"golang.org/x/oauth2"
 
 	"github.com/mitchellh/golicense/license"
 	githubFinder "github.com/mitchellh/golicense/license/github"
 	"github.com/mitchellh/golicense/module"
+)
+
+const (
+	EnvGitHubToken = "GITHUB_TOKEN"
 )
 
 func main() {
@@ -57,14 +63,21 @@ func realMain() int {
 		return 1
 	}
 
+	ctx := context.Background()
+
+	var githubClient *http.Client
+	if v := os.Getenv(EnvGitHubToken); v != "" {
+		ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: v})
+		githubClient = oauth2.NewClient(ctx, ts)
+	}
+
 	fs := []license.Finder{
 		&githubFinder.RepoAPI{
-			Client: github.NewClient(nil),
+			Client: github.NewClient(githubClient),
 		},
 	}
 
 	o := &TermOutput{Out: os.Stdout, Modules: mods}
-	ctx := context.Background()
 
 	// Kick off all the license lookups.
 	var wg sync.WaitGroup
