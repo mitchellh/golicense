@@ -27,8 +27,13 @@ func main() {
 }
 
 func realMain() int {
-	flag.Parse()
-	args := flag.Args()
+	out := &TermOutput{Out: os.Stdout}
+
+	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flags.BoolVar(&out.Plain, "plain", false, "plain simple output, no colors or live updates")
+	flags.BoolVar(&out.Verbose, "verbose", false, "additional logging, requires -plain")
+	flags.Parse(os.Args[1:])
+	args := flags.Args()
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, color.RedString(
 			"❗️ Path to file to analyze expected.\n\n"))
@@ -63,6 +68,8 @@ func realMain() int {
 		return 1
 	}
 
+	out.Modules = mods
+
 	ctx := context.Background()
 
 	var githubClient *http.Client
@@ -77,8 +84,6 @@ func realMain() int {
 		},
 	}
 
-	o := &TermOutput{Out: os.Stdout, Modules: mods}
-
 	// Kick off all the license lookups.
 	var wg sync.WaitGroup
 	sem := NewSemaphore(5)
@@ -92,12 +97,12 @@ func realMain() int {
 			defer sem.Release()
 
 			// Build the context
-			ctx := license.StatusWithContext(ctx, StatusListener(o, &m))
+			ctx := license.StatusWithContext(ctx, StatusListener(out, &m))
 
 			// Lookup
-			o.Start(&m)
+			out.Start(&m)
 			lic, err := license.Find(ctx, m, fs)
-			o.Finish(&m, lic, err)
+			out.Finish(&m, lic, err)
 		}(m)
 	}
 
@@ -105,7 +110,7 @@ func realMain() int {
 	wg.Wait()
 
 	// Close the output
-	if err := o.Close(); err != nil {
+	if err := out.Close(); err != nil {
 		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
 			"❗️ Error: %s\n", err)))
 		return 1
