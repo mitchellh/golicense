@@ -107,3 +107,20 @@ Specify your token using the `GITHUB_TOKEN` environment variable.
 $ export GITHUB_TOKEN=abcd1234
 $ golicense ./binary
 ```
+
+## Limitations
+
+There are a number of limitations to `golicense` currently. These are fixable
+but work hasn't been done to address these yet. If you feel like taking a stab
+at any of these, please do and contribute!
+
+**GitHub API:** The license detected by `golicense` may be incorrect if
+a GitHub project changes licenses. `golicense` uses the GitHub API which only
+returns the license currently detected; we can't lookup licenses for specific
+commit hashes.
+
+**Import Redirects:** Import paths that redirect to GitHub projects
+(such as `gonum.org/v1/gonum`) aren't properly translated currently. To fix
+this we should use the `go get` HTTP protocol to detect these and do the
+proper translation. For now, you can work around this using explicit overrides
+via a configuration file.
