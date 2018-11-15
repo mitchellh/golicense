@@ -15,6 +15,7 @@ import (
 
 	"github.com/mitchellh/golicense/license"
 	githubFinder "github.com/mitchellh/golicense/license/github"
+	"github.com/mitchellh/golicense/license/golang"
 	"github.com/mitchellh/golicense/license/gopkg"
 	"github.com/mitchellh/golicense/module"
 )
@@ -92,6 +93,7 @@ func realMain() int {
 
 	// Build our translators and license finders
 	ts := []license.Translator{
+		&golang.Translator{},
 		&gopkg.Translator{},
 	}
 	fs := []license.Finder{
@@ -117,8 +119,7 @@ func realMain() int {
 
 			// Lookup
 			out.Start(&m)
-			m = license.Translate(ctx, m, ts)
-			lic, err := license.Find(ctx, m, fs)
+			lic, err := license.Find(ctx, license.Translate(ctx, m, ts), fs)
 			out.Finish(&m, lic, err)
 		}(m)
 	}

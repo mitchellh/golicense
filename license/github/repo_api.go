@@ -63,4 +63,4 @@ FETCH_RETRY:
 }
 
 // githubRe is the regexp matching the package for a GitHub import.
-var githubRe = regexp.MustCompile(`^github.com/([^/]+)/([^/]+)$`)
+var githubRe = regexp.MustCompile(`^github\.com/([^/]+)/([^/]+)$`)
