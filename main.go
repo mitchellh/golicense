@@ -15,6 +15,7 @@ import (
 
 	"github.com/mitchellh/golicense/license"
 	githubFinder "github.com/mitchellh/golicense/license/github"
+	"github.com/mitchellh/golicense/license/gopkg"
 	"github.com/mitchellh/golicense/module"
 )
 
@@ -46,6 +47,7 @@ func realMain() int {
 		return 1
 	}
 
+	// Read the dependencies from the binary itself
 	vsn, err := version.ReadExe(args[0])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
@@ -54,6 +56,9 @@ func realMain() int {
 	}
 
 	if vsn.ModuleInfo == "" {
+		// ModuleInfo empty means that the binary didn't use Go modules
+		// or it could mean that a binary has no dependencies. Either way
+		// we error since we can't be sure.
 		fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
 			"⚠️  %q ⚠️\n\n"+
 				"This executable was compiled without using Go modules or has \n"+
@@ -61,6 +66,8 @@ func realMain() int {
 		return 1
 	}
 
+	// From the raw module string from the binary, we need to parse this
+	// into structured data with the module information.
 	mods, err := module.ParseExeData(vsn.ModuleInfo)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
@@ -68,16 +75,25 @@ func realMain() int {
 		return 1
 	}
 
+	// Set the modules on our terminal output so that it can look prettier
 	out.Modules = mods
 
+	// Setup a context. We don't connect this to an interrupt signal or
+	// anything since we just exit immediately on interrupt. No cleanup
+	// necessary.
 	ctx := context.Background()
 
+	// Auth with GitHub if available
 	var githubClient *http.Client
 	if v := os.Getenv(EnvGitHubToken); v != "" {
 		ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: v})
 		githubClient = oauth2.NewClient(ctx, ts)
 	}
 
+	// Build our translators and license finders
+	ts := []license.Translator{
+		&gopkg.Translator{},
+	}
 	fs := []license.Finder{
 		&githubFinder.RepoAPI{
 			Client: github.NewClient(githubClient),
@@ -101,6 +117,7 @@ func realMain() int {
 
 			// Lookup
 			out.Start(&m)
+			m = license.Translate(ctx, m, ts)
 			lic, err := license.Find(ctx, m, fs)
 			out.Finish(&m, lic, err)
 		}(m)
