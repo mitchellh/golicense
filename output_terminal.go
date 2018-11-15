@@ -52,11 +52,12 @@ type TermOutput struct {
 
 // Start implements Output
 func (o *TermOutput) Start(m *module.Module) {
+	o.once.Do(o.init)
+
 	if o.Plain {
 		return
 	}
 
-	o.once.Do(o.init)
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	o.modules[m.Path] = fmt.Sprintf("%s %s starting...", iconNormal, o.paddedModule(m))
