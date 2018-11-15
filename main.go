@@ -125,6 +125,7 @@ func realMain() int {
 	var fs []license.Finder
 	if flagLicense {
 		fs = []license.Finder{
+			&mapper.Finder{Map: cfg.Override},
 			&githubFinder.RepoAPI{
 				Client: github.NewClient(githubClient),
 			},
@@ -148,7 +149,13 @@ func realMain() int {
 
 			// Lookup
 			out.Start(&m)
-			lic, err := license.Find(ctx, license.Translate(ctx, m, ts), fs)
+
+			// We first try the untranslated version. If we can detect
+			// a license then take that. Otherwise, we translate.
+			lic, err := license.Find(ctx, m, fs)
+			if lic == nil || err != nil {
+				lic, err = license.Find(ctx, license.Translate(ctx, m, ts), fs)
+			}
 			out.Finish(&m, lic, err)
 		}(m)
 	}

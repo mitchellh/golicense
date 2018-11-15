@@ -18,6 +18,12 @@ type Config struct {
 	Allow []string `hcl:"allow,optional"`
 	Deny  []string `hcl:"deny,optional"`
 
+	// Override is a map that explicitly sets the license for the given
+	// import path. The key is an import path (exact) and the value is
+	// the name or SPDX ID of the license. Regardless, the value will
+	// be set as both the name and SPDX ID, so SPDX IDs are recommended.
+	Override map[string]string `hcl:"override,optional"`
+
 	// Translate is a map that translates one import source into another.
 	// For example, "gopkg.in/(.*)" => "github.com/\1" would translate
 	// gopkg into github (incorrectly, but the example would work).

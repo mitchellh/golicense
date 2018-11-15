@@ -84,6 +84,10 @@ Supported configurations:
 
   * `allow` (`array<string>`) - A list of names or SPDX IDs of allowed licenses.
   * `deny` (`array<string>`) - A list of names or SPDX IDs of denied licenses.
+  * `override` (`map<string, string>`) - A mapping of Go import identifiers
+    to translate into a specific license by SPDX ID. This can be used to
+	set the license of imports that `golicense` cannot detect so that reports
+	pass.
   * `translate` (`map<string, string>`) - A mapping of Go import identifiers
     to translate into alternate import identifiers. Example:
 	"gopkg.in/foo/bar.v2" to "github.com/foo/bar". If the map key starts and
