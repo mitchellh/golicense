@@ -10,7 +10,7 @@ type License struct {
 
 func (l *License) String() string {
 	if l == nil {
-		return "<nil license>"
+		return "<license not found or detected>"
 	}
 
 	return l.Name
