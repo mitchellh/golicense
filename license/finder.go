@@ -13,6 +13,28 @@ type Finder interface {
 	License(context.Context, module.Module) (*License, error)
 }
 
+// Translator implementations can convert one module path to another
+// module path that is more suitable for license lookup.
+type Translator interface {
+	// Translate takes a module and converts it into another module.
+	// This is used to, for example, detect gopkg.in URLs as GitHub
+	// repositories.
+	Translate(context.Context, module.Module) (module.Module, bool)
+}
+
+// Translate translates the given module or returns the same module if
+// no translation is necessary.
+func Translate(ctx context.Context, m module.Module, ts []Translator) module.Module {
+	for _, t := range ts {
+		n, ok := t.Translate(ctx, m)
+		if ok {
+			m = n
+		}
+	}
+
+	return m
+}
+
 // Find finds the license for the given module using a set of finders.
 //
 // The finders are tried in the order given. The first finder to return
