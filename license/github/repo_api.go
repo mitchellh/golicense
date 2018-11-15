@@ -56,6 +56,12 @@ FETCH_RETRY:
 		return nil, err
 	}
 
+	// If the license type is "other" then we try to use go-license-detector
+	// to determine the license, which seems to be accurate in these cases.
+	if rl.GetLicense().GetKey() == "other" {
+		return detect(rl)
+	}
+
 	return &license.License{
 		Name: rl.GetLicense().GetName(),
 		SPDX: rl.GetLicense().GetSPDXID(),
