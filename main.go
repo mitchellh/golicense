@@ -68,7 +68,9 @@ func realMain() int {
 			return 1
 		}
 
+		// Store the config and set it on the output
 		cfg = *c
+		out.Config = &cfg
 	}
 
 	// Read the dependencies from the binary itself
