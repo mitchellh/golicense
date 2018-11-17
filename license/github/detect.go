@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/go-github/v18/github"
+	"github.com/mitchellh/go-spdx"
 	"github.com/mitchellh/golicense/license"
 	"gopkg.in/src-d/go-license-detector.v2/licensedb"
 	"gopkg.in/src-d/go-license-detector.v2/licensedb/filer"
@@ -31,9 +32,15 @@ func detect(rl *github.RepositoryLicense) (*license.License, error) {
 		return nil, nil
 	}
 
+	// License detection only returns SPDX IDs but we want the complete name.
+	lic, err := spdx.License(current)
+	if err != nil {
+		return nil, fmt.Errorf("error looking up license %q: %s", current, err)
+	}
+
 	return &license.License{
-		Name: current,
-		SPDX: current,
+		Name: lic.Name,
+		SPDX: lic.ID,
 	}, nil
 }
 
