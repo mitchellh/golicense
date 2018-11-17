@@ -2,7 +2,9 @@ package mapper
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/mitchellh/go-spdx"
 	"github.com/mitchellh/golicense/license"
 	"github.com/mitchellh/golicense/module"
 )
@@ -20,5 +22,11 @@ func (f *Finder) License(ctx context.Context, m module.Module) (*license.License
 		return nil, nil
 	}
 
-	return &license.License{Name: v, SPDX: v}, nil
+	// Look up the license by SPDX ID
+	lic, err := spdx.License(v)
+	if err != nil {
+		return nil, fmt.Errorf("Override license %q SPDX lookup error: %s", v, err)
+	}
+
+	return &license.License{Name: lic.Name, SPDX: lic.ID}, nil
 }
