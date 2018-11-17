@@ -24,6 +24,11 @@ func TestTranslator(t *testing.T) {
 		},
 
 		{
+			"gopkg.in/yaml.v3",
+			"github.com/go-yaml/yaml",
+		},
+
+		{
 			"gopkg.in/mitchellh/foo.v22",
 			"github.com/mitchellh/foo",
 		},

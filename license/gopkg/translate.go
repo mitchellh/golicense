@@ -16,9 +16,9 @@ func (t Translator) Translate(ctx context.Context, m module.Module) (module.Modu
 		return module.Module{}, false
 	}
 
-	// URL case 1 with no user means it is go-pkg
+	// URL case 1 with no user means it is go-<pkg>
 	if ms[1] == "" {
-		ms[1] = "go-pkg"
+		ms[1] = "go-" + ms[2]
 	}
 
 	// Matches, convert to github
