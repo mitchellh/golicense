@@ -28,24 +28,7 @@ dependency analysis where the source must not be tampered.
 
 The example below runs `golicense` against itself from a recent build.
 
-```
-$ golicense ./golicense
-github.com/agext/levenshtein              Apache License 2.0
-github.com/apparentlymart/go-textseg      Apache-2.0
-github.com/davecgh/go-spew                ISC License
-github.com/dgryski/go-minhash             MIT License
-github.com/ekzhu/minhash-lsh              MIT License
-github.com/emirpasic/gods                 BSD-2-Clause
-github.com/fatih/color                    MIT License
-github.com/google/go-cmp                  BSD 3-Clause "New" or "Revised" License
-github.com/google/go-github               BSD 3-Clause "New" or "Revised" License
-github.com/google/go-querystring          BSD 3-Clause "New" or "Revised" License
-github.com/gosuri/uilive                  MIT License
-github.com/hashicorp/errwrap              Mozilla Public License 2.0
-github.com/hashicorp/go-multierror        Mozilla Public License 2.0
-github.com/hashicorp/hcl2                 Mozilla Public License 2.0
-...
-```
+![golicense Example](https://user-images.githubusercontent.com/1299/48667166-468d1080-ea85-11e8-8005-5a44c6a0d10a.gif)
 
 ## Installation
 
