@@ -11,10 +11,17 @@ are not used in the final binary. For example, if a library depends on "foo"
 in function "F" but "F" is never called, then the dependency "foo" will not
 be present in the final binary.
 
+golicense is not meant to be a complete replacement for open source compliance
+companies such as [FOSSA](https://fossa.io/) or
+[BlackDuck](https://www.blackducksoftware.com/black-duck-home), both of
+which provide hundreds of additional features related to open source
+compliance.
+
 **Warning:** The binary itself must be trusted and untampered with to provide
 accurate results. It is trivial to modify the dependency information of a
 compiled binary. This is the opposite side of the same coin with source-based
 dependency analysis where the source must not be tampered.
+
 
 ## Features
 
