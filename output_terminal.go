@@ -118,7 +118,8 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
 	icon := iconNormal
 	if o.Config != nil {
-		switch o.Config.Allowed(l) {
+		state := o.Config.Allowed(l)
+		switch state {
 		case config.StateAllowed:
 			colorFunc = color.GreenString
 			icon = iconSuccess
@@ -129,9 +130,11 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 			o.exitCode = 1
 
 		case config.StateUnknown:
-			colorFunc = color.YellowString
-			icon = iconWarning
-			o.exitCode = 1
+			if len(o.Config.Allow) > 0 || len(o.Config.Deny) > 0 {
+				colorFunc = color.YellowString
+				icon = iconWarning
+				o.exitCode = 1
+			}
 		}
 	}
 	if icon != "" {
@@ -249,4 +252,5 @@ const (
 	iconWarning = "⚠️ "
 	iconError   = "🚫"
 	iconSuccess = "✅"
+	iconSpace   = "  "
 )
