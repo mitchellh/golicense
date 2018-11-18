@@ -39,12 +39,12 @@ The example below runs `golicense` against itself from a recent build.
 
 ## Installation
 
-To install `golicense`, use `go get` directly:
+To install `golicense`, download the appropriate release for your platform
+from the [releases page](https://github.com/mitchellh/golicense/releases).
 
-```
-$ go get github.com/mitchellh/golicense
-$ golicense
-```
+You can also compile from source using Go 1.11 or later using standard
+`go build`. Please ensure that Go modules are enabled (GOPATH not set or
+`GO111MODULE` set to "on").
 
 ## Usage
 
