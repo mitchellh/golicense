@@ -21,7 +21,8 @@ dependency analysis where the source must not be tampered.
   * List dependencies, their versions, and their checksum
   * Find and list the license associated with a dependency
   * Cross-reference dependency licenses against an allow/deny list to
-    generate compliance reports.
+    generate compliance reports
+  * Output reports in the terminal and Excel (XLSX) format
 
 ## Example
 
@@ -44,6 +45,15 @@ github.com/hashicorp/errwrap              Mozilla Public License 2.0
 github.com/hashicorp/go-multierror        Mozilla Public License 2.0
 github.com/hashicorp/hcl2                 Mozilla Public License 2.0
 ...
+```
+
+## Installation
+
+To install `golicense`, use `go get` directly:
+
+```
+$ go get github.com/mitchellh/golicense
+$ golicense
 ```
 
 ## Usage
