@@ -68,6 +68,7 @@ func (o *XLSXOutput) Close() error {
 	// Create all our styles
 	redStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#FFCCCC"]}}`)
 	yellowStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#FFC107"]}}`)
+	greenStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#9CCC65"]}}`)
 
 	// Sort the modules by name
 	keys := make([]string, 0, len(o.modules))
@@ -119,6 +120,10 @@ func (o *XLSXOutput) Close() error {
 				switch o.Config.Allowed(lic) {
 				case config.StateAllowed:
 					f.SetCellValue(s, fmt.Sprintf("D%d", i+2), "yes")
+					f.SetCellStyle(s, "A"+row, "A"+row, greenStyle)
+					f.SetCellStyle(s, "B"+row, "B"+row, greenStyle)
+					f.SetCellStyle(s, "C"+row, "C"+row, greenStyle)
+					f.SetCellStyle(s, "D"+row, "D"+row, greenStyle)
 
 				case config.StateDenied:
 					f.SetCellValue(s, fmt.Sprintf("D%d", i+2), "no")

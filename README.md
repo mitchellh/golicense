@@ -99,6 +99,22 @@ $ export GITHUB_TOKEN=abcd1234
 $ golicense ./binary
 ```
 
+### Excel (XLSX) Reporting Output
+
+If the `-out-xlsx` flag is specified, then an Excel report is generated
+and written to the path specified in addition to the terminal output.
+
+```
+$ golicense -out-xlsx=report.xlsx ./my-program
+```
+
+The Excel report contains the list of dependencies, their versions, the
+detected license, and whether the license is allowed or not. The dependencies
+are listed in alphabetical order. The row of the dependency will have a
+green background if everything is okay, a yellow background if a
+license is unknown, or a red background is a license is denied. An example
+screenshot is shown below:
+
 ## Limitations
 
 There are a number of limitations to `golicense` currently. These are fixable
