@@ -115,6 +115,8 @@ green background if everything is okay, a yellow background if a
 license is unknown, or a red background is a license is denied. An example
 screenshot is shown below:
 
+![Excel Report](https://user-images.githubusercontent.com/1299/48667086-84893500-ea83-11e8-925c-7929ed441b1b.png)
+
 ## Limitations
 
 There are a number of limitations to `golicense` currently. These are fixable
