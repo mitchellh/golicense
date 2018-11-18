@@ -40,7 +40,7 @@ FETCH_RETRY:
 		timer := time.NewTimer(dur)
 		defer timer.Stop()
 		license.UpdateStatus(ctx, license.StatusWarning, fmt.Sprintf(
-			"rate limited, waiting %s", dur))
+			"rate limited by GitHub, waiting %s", dur))
 
 		select {
 		case <-ctx.Done():
