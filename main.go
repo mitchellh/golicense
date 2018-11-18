@@ -20,6 +20,7 @@ import (
 	"github.com/mitchellh/golicense/license/golang"
 	"github.com/mitchellh/golicense/license/gopkg"
 	"github.com/mitchellh/golicense/license/mapper"
+	"github.com/mitchellh/golicense/license/resolver"
 	"github.com/mitchellh/golicense/module"
 )
 
@@ -131,6 +132,7 @@ func realMain() int {
 	// Build our translators and license finders
 	ts := []license.Translator{
 		&mapper.Translator{Map: cfg.Translate},
+		&resolver.Translator{},
 		&golang.Translator{},
 		&gopkg.Translator{},
 	}

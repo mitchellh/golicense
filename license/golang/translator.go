@@ -24,4 +24,4 @@ func (t Translator) Translate(ctx context.Context, m module.Module) (module.Modu
 // re is the regexp matching the package for a GoPkg import. This is taken
 // almost directly from the GoPkg source code itself so it should match
 // perfectly.
-var re = regexp.MustCompile(`^golang\.org/x/([^/]+)$`)
+var re = regexp.MustCompile(`^go\.googlesource\.com/([^/]+)$`)

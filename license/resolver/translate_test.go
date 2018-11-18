@@ -1,4 +1,4 @@
-package golang
+package resolver
 
 import (
 	"context"
@@ -19,8 +19,13 @@ func TestTranslator(t *testing.T) {
 		},
 
 		{
+			"golang.org/x/text",
 			"go.googlesource.com/text",
-			"github.com/golang/text",
+		},
+
+		{
+			"gonum.org/v1/gonum",
+			"github.com/gonum/gonum",
 		},
 	}
 

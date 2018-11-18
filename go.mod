@@ -34,6 +34,7 @@ require (
 	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 	golang.org/x/exp v0.0.0-20181112044915-a3060d491354 // indirect
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
+	golang.org/x/tools v0.0.0-20180525024113-a5b4c53f6e8b
 	gonum.org/v1/gonum v0.0.0-20181115051416-e2f95e5c31f6 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0 // indirect

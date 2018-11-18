@@ -134,9 +134,3 @@ at any of these, please do and contribute!
 a GitHub project changes licenses. `golicense` uses the GitHub API which only
 returns the license currently detected; we can't lookup licenses for specific
 commit hashes.
-
-**Import Redirects:** Import paths that redirect to GitHub projects
-(such as `gonum.org/v1/gonum`) aren't properly translated currently. To fix
-this we should use the `go get` HTTP protocol to detect these and do the
-proper translation. For now, you can work around this using explicit overrides
-via a configuration file.
