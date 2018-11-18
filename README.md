@@ -18,11 +18,11 @@ dependency analysis where the source must not be tampered.
 
 ## Features
 
-  * List dependencies, their versions, and their checksum
-  * Find and list the license associated with a dependency
-  * Cross-reference dependency licenses against an allow/deny list to
-    generate compliance reports
+  * List dependencies and their associated licenses
+  * Cross-reference dependency licenses against an allow/deny list
   * Output reports in the terminal and Excel (XLSX) format
+  * Manually specify overrides for specific dependencies if the detection
+    is incorrect.
 
 ## Example
 
