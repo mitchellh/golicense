@@ -32,15 +32,18 @@ func main() {
 }
 
 func realMain() int {
-	out := &TermOutput{Out: os.Stdout}
+	termOut := &TermOutput{Out: os.Stdout}
 
 	var flagLicense bool
+	var flagOutXLSX string
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.BoolVar(&flagLicense, "license", true,
 		"look up and verify license. If false, dependencies are\n"+
 			"printed without licenses.")
-	flags.BoolVar(&out.Plain, "plain", false, "plain simple output, no colors or live updates")
-	flags.BoolVar(&out.Verbose, "verbose", false, "additional logging, requires -plain")
+	flags.BoolVar(&termOut.Plain, "plain", false, "plain terminal output, no colors or live updates")
+	flags.BoolVar(&termOut.Verbose, "verbose", false, "additional logging to terminal, requires -plain")
+	flags.StringVar(&flagOutXLSX, "out-xlsx", "",
+		"save report in Excel XLSX format to the given path")
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
 	if len(args) == 0 {
@@ -70,7 +73,6 @@ func realMain() int {
 
 		// Store the config and set it on the output
 		cfg = *c
-		out.Config = &cfg
 	}
 
 	// Read the dependencies from the binary itself
@@ -101,8 +103,18 @@ func realMain() int {
 		return 1
 	}
 
-	// Set the modules on our terminal output so that it can look prettier
-	out.Modules = mods
+	// Complete terminal output setup
+	termOut.Config = &cfg
+	termOut.Modules = mods
+
+	// Setup the outputs
+	out := &MultiOutput{Outputs: []Output{termOut}}
+	if flagOutXLSX != "" {
+		out.Outputs = append(out.Outputs, &XLSXOutput{
+			Path:   flagOutXLSX,
+			Config: &cfg,
+		})
+	}
 
 	// Setup a context. We don't connect this to an interrupt signal or
 	// anything since we just exit immediately on interrupt. No cleanup
@@ -170,7 +182,7 @@ func realMain() int {
 		return 1
 	}
 
-	return out.ExitCode()
+	return termOut.ExitCode()
 }
 
 func printHelp(fs *flag.FlagSet) {
