@@ -90,7 +90,7 @@ func realMain() int {
 		fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
 			"⚠️  %q ⚠️\n\n"+
 				"This executable was compiled without using Go modules or has \n"+
-				"zero dependencies. golicense considers this an error (exit code 1).\n", args[0])))
+				"zero dependencies. golicense considers this an error (exit code 1).\n", exePath)))
 		return 1
 	}
 
