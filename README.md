@@ -71,6 +71,13 @@ allow = ["MIT", "Apache-2.0"]
 deny  = ["GNU General Public License v2.0"]
 ```
 
+```json
+{
+  "allow": ["MIT", "Apache-2.0"],
+  "deny": ["GNU General Public License v2.0"]
+}
+```
+
 Supported configurations:
 
   * `allow` (`array<string>`) - A list of names or SPDX IDs of allowed licenses.
