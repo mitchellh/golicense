@@ -2,14 +2,15 @@
 
 golicense is a tool that scans [compiled Go binaries](https://golang.org/)
 and can output all the dependencies, their versions, and their respective
-licenses (if known).
+licenses (if known). golicense only works with Go binaries compiled using
+Go modules for dependency management.
 
 golicense determines the dependency list quickly and with exact accuracy
 since it uses metadata from the Go compiler to determine the _exact_ set of
 dependencies embedded in a compiled Go binary. This excludes dependencies that
 are not used in the final binary. For example, if a library depends on "foo"
 in function "F" but "F" is never called, then the dependency "foo" will not
-be present in the final binary.
+be present in the final binary. 
 
 golicense is not meant to be a complete replacement for open source compliance
 companies such as [FOSSA](https://fossa.io/) or
@@ -21,7 +22,6 @@ compliance.
 accurate results. It is trivial to modify the dependency information of a
 compiled binary. This is the opposite side of the same coin with source-based
 dependency analysis where the source must not be tampered.
-
 
 ## Features
 
