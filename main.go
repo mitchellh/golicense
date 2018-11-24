@@ -100,7 +100,7 @@ func realMain() int {
 	mods, err := module.ParseExeData(vsn.ModuleInfo)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
-			"❗️ Error parsing dependencies: %s", err)))
+			"❗️ Error parsing dependencies: %s\n", err)))
 		return 1
 	}
 
