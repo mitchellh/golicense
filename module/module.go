@@ -29,9 +29,16 @@ func ParseExeData(raw string) ([]Module, error) {
 	for _, line := range strings.Split(strings.TrimSpace(raw), "\n") {
 		row := strings.Split(line, "\t")
 
-		// Ignore non-dependency information, such as path/mod.
-		if row[0] != "dep" {
+		// Ignore non-dependency information, such as path/mod. The
+		// "=>" syntax means it is a replacement.
+		if row[0] != "dep" && row[0] != "=>" {
 			continue
+		}
+
+		if len(row) == 3 {
+			// A row with 3 can occur if there is no hash data for the
+			// dependency.
+			row = append(row, "")
 		}
 
 		if len(row) != 4 {
@@ -45,11 +52,19 @@ func ParseExeData(raw string) ([]Module, error) {
 			row[1] = row[1][:loc[0]]
 		}
 
-		result = append(result, Module{
+		next := Module{
 			Path:    row[1],
 			Version: row[2],
 			Hash:    row[3],
-		})
+		}
+
+		// If this is a replacement, then replace the last result
+		if row[0] == "=>" {
+			result[len(result)-1] = next
+			continue
+		}
+
+		result = append(result, next)
 	}
 
 	return result, nil
