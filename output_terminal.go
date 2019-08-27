@@ -109,12 +109,6 @@ func (o *TermOutput) Update(m *module.Module, t license.StatusType, msg string) 
 func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	o.once.Do(o.init)
 
-	if o.Plain {
-		fmt.Fprintf(o.Out, fmt.Sprintf(
-			"%s %s\n", o.paddedModule(m), l.String()))
-		return
-	}
-
 	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
 	icon := iconNormal
 	if o.Config != nil {
@@ -139,6 +133,12 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	}
 	if icon != "" {
 		icon += " "
+	}
+
+	if o.Plain {
+		fmt.Fprintf(o.Out, fmt.Sprintf(
+			"%s %s\n", o.paddedModule(m), l.String()))
+		return
 	}
 
 	o.lock.Lock()
