@@ -52,18 +52,13 @@ func realMain() int {
 			"❗️ Path to file to analyze expected.\n\n"))
 		printHelp(flags)
 		return 1
-	} else if len(args) > 2 {
-		fmt.Fprintf(os.Stderr, color.RedString(
-			"❗️ Exactly one or two arguments is allowed.\n\n"))
-		printHelp(flags)
-		return 1
 	}
 
 	// Determine the exe path and parse the configuration if given.
 	var cfg config.Config
-	exePath := args[0]
+	var exePaths []string
 	if len(args) > 1 {
-		exePath = args[1]
+		exePaths = args[1:]
 
 		c, err := config.ParseFile(args[0])
 		if err != nil {
@@ -74,34 +69,47 @@ func realMain() int {
 
 		// Store the config and set it on the output
 		cfg = *c
+	} else {
+		exePaths = args[:1]
 	}
 
-	// Read the dependencies from the binary itself
-	vsn, err := version.ReadExe(exePath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
-			"❗️ Error reading %q: %s\n", args[0], err)))
-		return 1
+	allMods := map[module.Module]struct{}{}
+	for _, exePath := range exePaths {
+		// Read the dependencies from the binary itself
+		vsn, err := version.ReadExe(exePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+				"❗️ Error reading %q: %s\n", args[0], err)))
+			return 1
+		}
+
+		if vsn.ModuleInfo == "" {
+			// ModuleInfo empty means that the binary didn't use Go modules
+			// or it could mean that a binary has no dependencies. Either way
+			// we error since we can't be sure.
+			fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
+				"⚠️  %q ⚠️\n\n"+
+					"This executable was compiled without using Go modules or has \n"+
+					"zero dependencies. golicense considers this an error (exit code 1).\n", exePath)))
+			return 1
+		}
+
+		// From the raw module string from the binary, we need to parse this
+		// into structured data with the module information.
+		mods, err := module.ParseExeData(vsn.ModuleInfo)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+				"❗️ Error parsing dependencies: %s\n", err)))
+			return 1
+		}
+		for _, mod := range mods {
+			allMods[mod] = struct{}{}
+		}
 	}
 
-	if vsn.ModuleInfo == "" {
-		// ModuleInfo empty means that the binary didn't use Go modules
-		// or it could mean that a binary has no dependencies. Either way
-		// we error since we can't be sure.
-		fmt.Fprintf(os.Stderr, color.YellowString(fmt.Sprintf(
-			"⚠️  %q ⚠️\n\n"+
-				"This executable was compiled without using Go modules or has \n"+
-				"zero dependencies. golicense considers this an error (exit code 1).\n", exePath)))
-		return 1
-	}
-
-	// From the raw module string from the binary, we need to parse this
-	// into structured data with the module information.
-	mods, err := module.ParseExeData(vsn.ModuleInfo)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
-			"❗️ Error parsing dependencies: %s\n", err)))
-		return 1
+	mods := make([]module.Module, 0, len(allMods))
+	for mod := range allMods {
+		mods = append(mods, mod)
 	}
 
 	// Complete terminal output setup

@@ -10,7 +10,7 @@ since it uses metadata from the Go compiler to determine the _exact_ set of
 dependencies embedded in a compiled Go binary. This excludes dependencies that
 are not used in the final binary. For example, if a library depends on "foo"
 in function "F" but "F" is never called, then the dependency "foo" will not
-be present in the final binary. 
+be present in the final binary.
 
 golicense is not meant to be a complete replacement for open source compliance
 companies such as [FOSSA](https://fossa.io/) or
@@ -57,6 +57,8 @@ licenses and more.
 $ golicense [flags] [BINARY]
 $ golicense [flags] [CONFIG] [BINARY]
 ```
+
+You may also pass mutliple binaries (but only if you are providing a CONFIG).
 
 ### Configuration File
 
