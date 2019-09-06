@@ -56,7 +56,7 @@ func realMain() int {
 
 	// Determine the exe path and parse the configuration if given.
 	var cfg config.Config
-	var exePaths []string
+	exePaths := args[:1]
 	if len(args) > 1 {
 		exePaths = args[1:]
 
@@ -69,8 +69,6 @@ func realMain() int {
 
 		// Store the config and set it on the output
 		cfg = *c
-	} else {
-		exePaths = args[:1]
 	}
 
 	allMods := map[module.Module]struct{}{}
