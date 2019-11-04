@@ -37,6 +37,9 @@ func realMain() int {
 
 	var flagLicense bool
 	var flagOutXLSX string
+	var flagOutTemplate string
+	var flagInTemplate string
+
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.BoolVar(&flagLicense, "license", true,
 		"look up and verify license. If false, dependencies are\n"+
@@ -45,11 +48,22 @@ func realMain() int {
 	flags.BoolVar(&termOut.Verbose, "verbose", false, "additional logging to terminal, requires -plain")
 	flags.StringVar(&flagOutXLSX, "out-xlsx", "",
 		"save report in Excel XLSX format to the given path")
+	flags.StringVar(&flagOutTemplate, "out-template", "",
+		"save report with in-template in the given path")
+	flags.StringVar(&flagInTemplate, "in-template", "",
+		"save report the given template")
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, color.RedString(
 			"❗️ Path to file to analyze expected.\n\n"))
+		printHelp(flags)
+		return 1
+	}
+
+	if flagOutTemplate != "" && flagInTemplate =="" {
+		fmt.Fprintf(os.Stderr, color.RedString(
+			"❗️ Path to template file for template output expected.\n\n"))
 		printHelp(flags)
 		return 1
 	}
@@ -119,6 +133,19 @@ func realMain() int {
 	if flagOutXLSX != "" {
 		out.Outputs = append(out.Outputs, &XLSXOutput{
 			Path:   flagOutXLSX,
+			Config: &cfg,
+		})
+	}
+
+	if flagOutTemplate != "" {
+		if _, err := os.Stat(flagInTemplate); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, color.RedString(fmt.Sprintf(
+				"❗️ Error Teamplte file does not exist: %s\n", flagInTemplate)))
+			return 1
+		}
+		out.Outputs = append(out.Outputs, &TemplateOutput {
+			Path:	flagOutTemplate,
+			Template: flagInTemplate,
 			Config: &cfg,
 		})
 	}

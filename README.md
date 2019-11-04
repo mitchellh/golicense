@@ -126,6 +126,27 @@ screenshot is shown below:
 
 ![Excel Report](https://user-images.githubusercontent.com/1299/48667086-84893500-ea83-11e8-925c-7929ed441b1b.png)
 
+### Custom Template output
+
+It is possible to provide a template to get a custom report. For the template
+the [Go text/template](https://golang.org/pkg/text/template/) is used.
+
+```
+$ golicense -in-template report.tmpl -out-template=report.md ./my-program
+```
+
+The in-template paramter specifies the template file to use and the out-template
+as the filename to write the result.
+
+A simple example of a template content.
+
+```
+|Dependency | Version | SPDX| License | Allowed |
+|-----------|---------|-----|---------|---------|
+{{range . }}| {{.Dependency}} | {{.Version}} | {{.Spdx}} | {{.License}} | {{.Allowed}} |
+{{end}}
+```
+
 ## Limitations
 
 There are a number of limitations to `golicense` currently. These are fixable
