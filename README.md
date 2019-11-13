@@ -93,6 +93,9 @@ Supported configurations:
 	"gopkg.in/foo/bar.v2" to "github.com/foo/bar". If the map key starts and
 	ends with `/` then it is treated as a regular expression. In this case,
 	the map value can use `\1`, `\2`, etc. to reference capture groups.
+  * `outputColumns` (`array<string>`) - A list of column names in custom order.
+    Available Column Names: Dependency, Version, SPDX ID, License, Allowed, License Text
+    Default: `["Dependency", "Version", "SPDX ID", "License", "Allowed"]`
 
 ### GitHub Authentication
 
