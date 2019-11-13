@@ -28,6 +28,13 @@ type Config struct {
 	// For example, "gopkg.in/(.*)" => "github.com/\1" would translate
 	// gopkg into github (incorrectly, but the example would work).
 	Translate map[string]string `hcl:"translate,optional"`
+
+	// OutputColumns list the order for rendering output as xlsx
+	// Available Column Names:
+	// Dependency, Version, SPDX ID, License, Allowed, License Text
+	// Default: ['Dependency', 'Version', 'SPDX ID', 'License', 'Allowed']
+	// Not matching column names will be represented as empty columns
+	OutputColumns []string `hcl:"outputColumns,optional"`
 }
 
 // Allowed returns the allowed state of a license given the configuration.

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -55,94 +56,37 @@ func (o *XLSXOutput) Close() error {
 	const s = "Sheet1"
 	f := excelize.NewFile()
 
-	// Headers
-	f.SetCellValue(s, "A1", "Dependency")
-	f.SetCellValue(s, "B1", "Version")
-	f.SetCellValue(s, "C1", "SPDX ID")
-	f.SetCellValue(s, "D1", "License")
-	f.SetCellValue(s, "E1", "Allowed")
-	f.SetColWidth(s, "A", "A", 40)
-	f.SetColWidth(s, "B", "B", 20)
-	f.SetColWidth(s, "C", "C", 20)
-	f.SetColWidth(s, "D", "D", 40)
-	f.SetColWidth(s, "E", "E", 10)
-
 	// Create all our styles
 	redStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#FFCCCC"]}}`)
 	yellowStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#FFC107"]}}`)
 	greenStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#9CCC65"]}}`)
 
-	// Sort the modules by name
-	keys := make([]string, 0, len(o.modules))
-	index := map[string]*module.Module{}
-	for m := range o.modules {
-		keys = append(keys, m.Path)
-		index[m.Path] = m
+	columns := []string{"Dependency", "Version", "SPDX ID", "License", "Allowed"}
+	if len(o.Config.OutputColumns) > 0 {
+		columns = o.Config.OutputColumns
 	}
-	sort.Strings(keys)
+
+	// Headers
+	for i, k := range columns {
+		colID := string(i + 65)
+		f.SetCellValue(s, colID+"1", k)
+		f.SetColWidth(s, colID, colID, 40)
+	}
+
+	keys, index := o.sortModulesByName(o.modules)
 
 	// Go through each module and output it into the spreadsheet
-	for i, k := range keys {
-		row := strconv.FormatInt(int64(i+2), 10)
+	for rowIdx, rowKey := range keys {
+		rowID := strconv.Itoa(rowIdx + 2)
 
-		m := index[k]
-		f.SetCellValue(s, "A"+row, m.Path)
-		f.SetCellValue(s, "B"+row, m.Version)
-		f.SetCellValue(s, "E"+row, "unknown")
-		f.SetCellStyle(s, "A"+row, "A"+row, yellowStyle)
-		f.SetCellStyle(s, "B"+row, "B"+row, yellowStyle)
-		f.SetCellStyle(s, "C"+row, "C"+row, yellowStyle)
-		f.SetCellStyle(s, "D"+row, "D"+row, yellowStyle)
-		f.SetCellStyle(s, "E"+row, "E"+row, yellowStyle)
+		module := index[rowKey]
+		rawModule := o.modules[module]
 
-		raw := o.modules[m]
-		if raw == nil {
-			f.SetCellValue(s, "D"+row, "no")
-			f.SetCellStyle(s, "A"+row, "A"+row, redStyle)
-			f.SetCellStyle(s, "B"+row, "B"+row, redStyle)
-			f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
-			f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
-			f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
-			continue
-		}
+		for colIdx, colKey := range columns {
+			cellID := string(colIdx+65) + rowID
 
-		// If the value is an error, then note the error
-		if err, ok := raw.(error); ok {
-			f.SetCellValue(s, "D"+row, fmt.Sprintf("ERROR: %s", err))
-			f.SetCellValue(s, "E"+row, "no")
-			f.SetCellStyle(s, "A"+row, "A"+row, redStyle)
-			f.SetCellStyle(s, "B"+row, "B"+row, redStyle)
-			f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
-			f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
-			f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
-			continue
-		}
-
-		// If the value is a license, then mark the license
-		if lic, ok := raw.(*license.License); ok {
-			if lic != nil {
-				f.SetCellValue(s, fmt.Sprintf("C%d", i+2), lic.SPDX)
-			}
-			f.SetCellValue(s, fmt.Sprintf("D%d", i+2), lic.String())
-			if o.Config != nil {
-				switch o.Config.Allowed(lic) {
-				case config.StateAllowed:
-					f.SetCellValue(s, fmt.Sprintf("E%d", i+2), "yes")
-					f.SetCellStyle(s, "A"+row, "A"+row, greenStyle)
-					f.SetCellStyle(s, "B"+row, "B"+row, greenStyle)
-					f.SetCellStyle(s, "C"+row, "C"+row, greenStyle)
-					f.SetCellStyle(s, "D"+row, "D"+row, greenStyle)
-					f.SetCellStyle(s, "E"+row, "E"+row, greenStyle)
-
-				case config.StateDenied:
-					f.SetCellValue(s, fmt.Sprintf("E%d", i+2), "no")
-					f.SetCellStyle(s, "A"+row, "A"+row, redStyle)
-					f.SetCellStyle(s, "B"+row, "B"+row, redStyle)
-					f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
-					f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
-					f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
-				}
-			}
+			f.SetCellValue(s, cellID, o.getModuleValue(module, rawModule, colKey))
+			f.SetCellStyle(s, cellID, cellID, o.getModuleStyle(module, rawModule, redStyle, yellowStyle, greenStyle))
 		}
 	}
 
@@ -152,4 +96,91 @@ func (o *XLSXOutput) Close() error {
 	}
 
 	return nil
+}
+
+func (o *XLSXOutput) sortModulesByName(modules map[*module.Module]interface{}) ([]string, map[string]*module.Module) {
+	keys := make([]string, 0, len(modules))
+	index := map[string]*module.Module{}
+	for m := range modules {
+		keys = append(keys, m.Path)
+		index[m.Path] = m
+	}
+	sort.Strings(keys)
+	return keys, index
+}
+
+func (o *XLSXOutput) getModuleValue(module *module.Module, rawModule interface{}, key string) string {
+	compareKey := strings.ToLower(key)
+	// keys from module
+	switch compareKey {
+	case "dependency":
+		return module.Path
+	case "version":
+		return module.Version
+	}
+
+	// license key
+	if compareKey == "license" {
+		if rawModule == nil {
+			return "no"
+		}
+		if err, ok := rawModule.(error); ok {
+			return fmt.Sprintf("ERROR: %s", err)
+		}
+		if lic, ok := rawModule.(*license.License); ok {
+			return lic.String()
+		}
+		return ""
+	}
+
+	// allowed key
+	if compareKey == "allowed" {
+		if rawModule == nil {
+			return "no"
+		}
+		if _, ok := rawModule.(error); ok {
+			return "no"
+		}
+		if lic, ok := rawModule.(*license.License); ok && o.Config != nil {
+			switch o.Config.Allowed(lic) {
+			case config.StateAllowed:
+				return "yes"
+			case config.StateDenied:
+				return "no"
+			}
+		}
+		return "unknown"
+	}
+
+	// other keys
+	if rawModule == nil {
+		return ""
+	}
+	if lic, ok := rawModule.(*license.License); ok {
+		switch compareKey {
+		case "spdx id":
+			return lic.SPDX
+		case "license text":
+			return lic.Text
+		}
+	}
+	return ""
+}
+
+func (o *XLSXOutput) getModuleStyle(module *module.Module, rawModule interface{}, deny, indecisive, allow int) int {
+	if rawModule == nil {
+		return deny
+	}
+	if _, ok := rawModule.(error); ok {
+		return deny
+	}
+	if lic, ok := rawModule.(*license.License); ok && o.Config != nil {
+		switch o.Config.Allowed(lic) {
+		case config.StateAllowed:
+			return allow
+		case config.StateDenied:
+			return deny
+		}
+	}
+	return indecisive
 }

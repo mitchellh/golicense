@@ -45,7 +45,7 @@ func Parse(r io.Reader, filename, format string) (*Config, error) {
 		return parseJSON(r, filename)
 
 	default:
-		return nil, fmt.Errorf("Format must be either 'hcl' or 'json'")
+		return nil, fmt.Errorf("format must be either 'hcl' or 'json' (%s / %s)", filename, format)
 	}
 }
 

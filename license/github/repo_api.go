@@ -65,6 +65,7 @@ FETCH_RETRY:
 	return &license.License{
 		Name: rl.GetLicense().GetName(),
 		SPDX: rl.GetLicense().GetSPDXID(),
+		Text: rl.GetLicense().GetBody(),
 	}, nil
 }
 
