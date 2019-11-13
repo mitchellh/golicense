@@ -61,11 +61,13 @@ func (o *XLSXOutput) Close() error {
 	f.SetCellValue(s, "C1", "SPDX ID")
 	f.SetCellValue(s, "D1", "License")
 	f.SetCellValue(s, "E1", "Allowed")
+	f.SetCellValue(s, "F1", "License Text")
 	f.SetColWidth(s, "A", "A", 40)
 	f.SetColWidth(s, "B", "B", 20)
 	f.SetColWidth(s, "C", "C", 20)
 	f.SetColWidth(s, "D", "D", 40)
 	f.SetColWidth(s, "E", "E", 10)
+	f.SetColWidth(s, "F", "F", 40)
 
 	// Create all our styles
 	redStyle, _ := f.NewStyle(`{"fill":{"type":"pattern","pattern":1,"color":["#FFCCCC"]}}`)
@@ -94,6 +96,7 @@ func (o *XLSXOutput) Close() error {
 		f.SetCellStyle(s, "C"+row, "C"+row, yellowStyle)
 		f.SetCellStyle(s, "D"+row, "D"+row, yellowStyle)
 		f.SetCellStyle(s, "E"+row, "E"+row, yellowStyle)
+		f.SetCellStyle(s, "F"+row, "F"+row, yellowStyle)
 
 		raw := o.modules[m]
 		if raw == nil {
@@ -103,6 +106,7 @@ func (o *XLSXOutput) Close() error {
 			f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
 			f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
 			f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
+			f.SetCellStyle(s, "F"+row, "F"+row, redStyle)
 			continue
 		}
 
@@ -115,6 +119,7 @@ func (o *XLSXOutput) Close() error {
 			f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
 			f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
 			f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
+			f.SetCellStyle(s, "F"+row, "F"+row, redStyle)
 			continue
 		}
 
@@ -122,6 +127,7 @@ func (o *XLSXOutput) Close() error {
 		if lic, ok := raw.(*license.License); ok {
 			if lic != nil {
 				f.SetCellValue(s, fmt.Sprintf("C%d", i+2), lic.SPDX)
+				f.SetCellValue(s, fmt.Sprintf("F%d", i+2), lic.Text)
 			}
 			f.SetCellValue(s, fmt.Sprintf("D%d", i+2), lic.String())
 			if o.Config != nil {
@@ -133,6 +139,7 @@ func (o *XLSXOutput) Close() error {
 					f.SetCellStyle(s, "C"+row, "C"+row, greenStyle)
 					f.SetCellStyle(s, "D"+row, "D"+row, greenStyle)
 					f.SetCellStyle(s, "E"+row, "E"+row, greenStyle)
+					f.SetCellStyle(s, "F"+row, "F"+row, greenStyle)
 
 				case config.StateDenied:
 					f.SetCellValue(s, fmt.Sprintf("E%d", i+2), "no")
@@ -141,6 +148,7 @@ func (o *XLSXOutput) Close() error {
 					f.SetCellStyle(s, "C"+row, "C"+row, redStyle)
 					f.SetCellStyle(s, "D"+row, "D"+row, redStyle)
 					f.SetCellStyle(s, "E"+row, "E"+row, redStyle)
+					f.SetCellStyle(s, "F"+row, "F"+row, redStyle)
 				}
 			}
 		}
