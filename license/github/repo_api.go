@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"time"
@@ -62,9 +63,12 @@ FETCH_RETRY:
 		return detect(rl)
 	}
 
+	content, _ := base64.StdEncoding.DecodeString(rl.GetContent())
+
 	return &license.License{
 		Name: rl.GetLicense().GetName(),
 		SPDX: rl.GetLicense().GetSPDXID(),
+		Text: string(content),
 	}, nil
 }
 

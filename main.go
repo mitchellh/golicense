@@ -37,6 +37,8 @@ func realMain() int {
 
 	var flagLicense bool
 	var flagOutXLSX string
+	var flagOutLicenseFile string
+
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.BoolVar(&flagLicense, "license", true,
 		"look up and verify license. If false, dependencies are\n"+
@@ -45,6 +47,8 @@ func realMain() int {
 	flags.BoolVar(&termOut.Verbose, "verbose", false, "additional logging to terminal, requires -plain")
 	flags.StringVar(&flagOutXLSX, "out-xlsx", "",
 		"save report in Excel XLSX format to the given path")
+	flags.StringVar(&flagOutLicenseFile, "out-licensefile", "",
+		"save file of concatenated license text")
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
 	if len(args) == 0 {
@@ -119,6 +123,13 @@ func realMain() int {
 	if flagOutXLSX != "" {
 		out.Outputs = append(out.Outputs, &XLSXOutput{
 			Path:   flagOutXLSX,
+			Config: &cfg,
+		})
+	}
+
+	if flagOutLicenseFile != "" {
+		out.Outputs = append(out.Outputs, &LicenseFileOutput{
+			Path:   flagOutLicenseFile,
 			Config: &cfg,
 		})
 	}
