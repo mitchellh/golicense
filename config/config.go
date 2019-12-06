@@ -18,6 +18,8 @@ type Config struct {
 	Allow []string `hcl:"allow,optional"`
 	Deny  []string `hcl:"deny,optional"`
 
+	Ignore []string `hcl:"ignore,optional"`
+
 	// Override is a map that explicitly sets the license for the given
 	// import path. The key is an import path (exact) and the value is
 	// the name or SPDX ID of the license. Regardless, the value will
@@ -31,11 +33,12 @@ type Config struct {
 }
 
 // Allowed returns the allowed state of a license given the configuration.
-func (c *Config) Allowed(l *license.License) AllowState {
+func (c *Config) Allowed(p string, l *license.License) AllowState {
 	if l == nil {
 		return StateDenied // no license is never allowed
 	}
 
+	path := strings.ToLower(p)
 	name := strings.ToLower(l.Name)
 	spdx := strings.ToLower(l.SPDX)
 
@@ -50,6 +53,13 @@ func (c *Config) Allowed(l *license.License) AllowState {
 	for _, v := range c.Allow {
 		v = strings.ToLower(v)
 		if name == v || spdx == v {
+			return StateAllowed
+		}
+	}
+
+	for _, v := range c.Ignore {
+		v = strings.ToLower(v)
+		if path == v {
 			return StateAllowed
 		}
 	}

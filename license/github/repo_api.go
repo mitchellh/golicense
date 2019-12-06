@@ -57,18 +57,27 @@ FETCH_RETRY:
 		return nil, err
 	}
 
+	strName := rl.GetLicense().GetName()
+	strSPDX := rl.GetLicense().GetSPDXID()
+
 	// If the license type is "other" then we try to use go-license-detector
 	// to determine the license, which seems to be accurate in these cases.
 	if rl.GetLicense().GetKey() == "other" {
-		return detect(rl)
+		lic, err := detect(rl)
+
+		if err == nil {
+			strName = lic.String()
+			strSPDX = lic.SPDXString()
+		}
 	}
 
 	content, _ := base64.StdEncoding.DecodeString(rl.GetContent())
+	strContent := string(content)
 
 	return &license.License{
-		Name: rl.GetLicense().GetName(),
-		SPDX: rl.GetLicense().GetSPDXID(),
-		Text: string(content),
+		Name: strName,
+		SPDX: strSPDX,
+		Text: strContent,
 	}, nil
 }
 

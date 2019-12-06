@@ -125,7 +125,7 @@ func (o *XLSXOutput) Close() error {
 			}
 			f.SetCellValue(s, fmt.Sprintf("D%d", i+2), lic.String())
 			if o.Config != nil {
-				switch o.Config.Allowed(lic) {
+				switch o.Config.Allowed(m.Path, lic) {
 				case config.StateAllowed:
 					f.SetCellValue(s, fmt.Sprintf("E%d", i+2), "yes")
 					f.SetCellStyle(s, "A"+row, "A"+row, greenStyle)

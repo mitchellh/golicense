@@ -80,9 +80,12 @@ func (o *LicenseFileOutput) Close() error {
 			if lic != nil {
 				fmt.Fprintln(f, lic.SPDX)
 				fmt.Fprintln(f, lic.TextString())
-				fmt.Fprintln(f, "##########")
 			}
+		} else {
+			fmt.Fprintln(f, "**LICENSE NOT FOUND!**")
 		}
+		fmt.Fprintln(f, "##########")
+
 		// }
 	}
 	// Save

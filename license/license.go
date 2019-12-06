@@ -24,3 +24,11 @@ func (l *License) TextString() string {
 
 	return l.Text
 }
+
+func (l *License) SPDXString() string {
+	if l == nil {
+		return "<license not found or detected>"
+	}
+
+	return l.SPDX
+}

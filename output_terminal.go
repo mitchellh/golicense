@@ -112,7 +112,7 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
 	icon := iconNormal
 	if o.Config != nil {
-		state := o.Config.Allowed(l)
+		state := o.Config.Allowed(m.Path, l)
 		switch state {
 		case config.StateAllowed:
 			colorFunc = color.GreenString

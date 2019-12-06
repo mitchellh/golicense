@@ -41,7 +41,6 @@ func detect(rl *github.RepositoryLicense) (*license.License, error) {
 	return &license.License{
 		Name: lic.Name,
 		SPDX: lic.ID,
-		Text: lic.Text,
 	}, nil
 }
 
