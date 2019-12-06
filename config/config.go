@@ -18,7 +18,7 @@ type Config struct {
 	Allow []string `hcl:"allow,optional"`
 	Deny  []string `hcl:"deny,optional"`
 
-	Ignore []string `hcl:"ignore,optional"`
+	Preapproved []string `hcl:"preapproved,optional"`
 
 	// Override is a map that explicitly sets the license for the given
 	// import path. The key is an import path (exact) and the value is
@@ -57,7 +57,7 @@ func (c *Config) Allowed(p string, l *license.License) AllowState {
 		}
 	}
 
-	for _, v := range c.Ignore {
+	for _, v := range c.Preapproved {
 		v = strings.ToLower(v)
 		if path == v {
 			return StateAllowed
