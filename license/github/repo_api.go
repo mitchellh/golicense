@@ -66,7 +66,7 @@ FETCH_RETRY:
 		lic, err := detect(rl)
 
 		if err == nil {
-			strName = lic.String()
+			strName = lic.NameString()
 			strSPDX = lic.SPDXString()
 		}
 	}

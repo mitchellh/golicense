@@ -11,14 +11,13 @@ import (
 	"github.com/mitchellh/golicense/module"
 )
 
-// LicenseFileOutput writes the results of license lookups to an XLSX file.
+// LicenseFileOutput writes the results of license lookups to a text file.
+// The output file will contain the import path, version, and full license text for each dependency.
 type LicenseFileOutput struct {
-	// Path is the path to the file to write. This will be overwritten if
-	// it exists.
+	// Path - the path to the file to write. This will be overwritten if it exists.
 	Path string
 
-	// Config is the configuration (if any). This will be used to check
-	// if a license is allowed or not.
+	// Config - the configuration (if any). This will be used to check if a license is allowed or not.
 	Config *config.Config
 
 	modules map[*module.Module]interface{}
@@ -66,16 +65,15 @@ func (o *LicenseFileOutput) Close() error {
 	}
 	sort.Strings(keys)
 
-	// Go through each module and output it into the spreadsheet
+	// Go through each module and write the data to the licensefile
 	for _, k := range keys {
 		m := index[k]
 		raw := o.modules[m]
 
-		// if raw == nil {
 		fmt.Fprintln(f, fmt.Sprintf(
 			"%s - %s\n", m.Path, m.Version))
 
-		// If the value is a license, then mark the license
+		// Extract the license data and write to the licensefile
 		if lic, ok := raw.(*license.License); ok {
 			if lic != nil {
 				fmt.Fprintln(f, lic.SPDX)
@@ -85,8 +83,6 @@ func (o *LicenseFileOutput) Close() error {
 			fmt.Fprintln(f, "**LICENSE NOT FOUND!**")
 		}
 		fmt.Fprintln(f, "##########")
-
-		// }
 	}
 	// Save
 	if err := f.Close(); err != nil {

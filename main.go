@@ -126,7 +126,6 @@ func realMain() int {
 			Config: &cfg,
 		})
 	}
-
 	if flagOutLicenseFile != "" {
 		out.Outputs = append(out.Outputs, &LicenseFileOutput{
 			Path:   flagOutLicenseFile,

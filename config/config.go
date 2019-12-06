@@ -18,6 +18,8 @@ type Config struct {
 	Allow []string `hcl:"allow,optional"`
 	Deny  []string `hcl:"deny,optional"`
 
+	// Preapproved is a list of import paths that have been "preapproved",
+	// either because the license is non-standard or approved as a one-off.
 	Preapproved []string `hcl:"preapproved,optional"`
 
 	// Override is a map that explicitly sets the license for the given
@@ -33,12 +35,12 @@ type Config struct {
 }
 
 // Allowed returns the allowed state of a license given the configuration.
-func (c *Config) Allowed(p string, l *license.License) AllowState {
+func (c *Config) Allowed(importPath string, l *license.License) AllowState {
 	if l == nil {
 		return StateDenied // no license is never allowed
 	}
 
-	path := strings.ToLower(p)
+	path := strings.ToLower(importPath)
 	name := strings.ToLower(l.Name)
 	spdx := strings.ToLower(l.SPDX)
 
@@ -57,6 +59,7 @@ func (c *Config) Allowed(p string, l *license.License) AllowState {
 		}
 	}
 
+	// Allow repos that are pre-approved
 	for _, v := range c.Preapproved {
 		v = strings.ToLower(v)
 		if path == v {
@@ -67,8 +70,10 @@ func (c *Config) Allowed(p string, l *license.License) AllowState {
 	return StateUnknown
 }
 
+// AllowState - Is the repo/license allowed?
 type AllowState int
 
+// Possible AllowStates
 const (
 	StateUnknown AllowState = iota
 	StateAllowed
