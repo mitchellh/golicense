@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/mitchellh/golicense/config"
-	"github.com/mitchellh/golicense/license"
-	"github.com/mitchellh/golicense/module"
+	"github.com/omnisci/golicense/config"
+	"github.com/omnisci/golicense/license"
+	"github.com/omnisci/golicense/module"
 )
 
 // XLSXOutput writes the results of license lookups to an XLSX file.

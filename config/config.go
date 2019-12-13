@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/mitchellh/golicense/license"
+	"github.com/omnisci/golicense/license"
 )
 
 // Config is the configuration structure for the license checker.

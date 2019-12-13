@@ -1,4 +1,4 @@
-module github.com/mitchellh/golicense
+module github.com/omnisci/golicense
 
 go 1.13
 

@@ -6,9 +6,9 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/mitchellh/golicense/config"
-	"github.com/mitchellh/golicense/license"
-	"github.com/mitchellh/golicense/module"
+	"github.com/omnisci/golicense/config"
+	"github.com/omnisci/golicense/license"
+	"github.com/omnisci/golicense/module"
 )
 
 // LicenseFileOutput writes the results of license lookups to a text file.

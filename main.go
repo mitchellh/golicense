@@ -14,14 +14,14 @@ import (
 	"github.com/rsc/goversion/version"
 	"golang.org/x/oauth2"
 
-	"github.com/mitchellh/golicense/config"
-	"github.com/mitchellh/golicense/license"
-	githubFinder "github.com/mitchellh/golicense/license/github"
-	"github.com/mitchellh/golicense/license/golang"
-	"github.com/mitchellh/golicense/license/gopkg"
-	"github.com/mitchellh/golicense/license/mapper"
-	"github.com/mitchellh/golicense/license/resolver"
-	"github.com/mitchellh/golicense/module"
+	"github.com/omnisci/golicense/config"
+	"github.com/omnisci/golicense/license"
+	githubFinder "github.com/omnisci/golicense/license/github"
+	"github.com/omnisci/golicense/license/golang"
+	"github.com/omnisci/golicense/license/gopkg"
+	"github.com/omnisci/golicense/license/mapper"
+	"github.com/omnisci/golicense/license/resolver"
+	"github.com/omnisci/golicense/module"
 )
 
 const (
@@ -219,7 +219,7 @@ all the licenses of dependencies, or a configuration file and a binary
 which also notes which licenses are allowed among other settings.
 
 For full help text, see the README in the GitHub repository:
-http://github.com/mitchellh/golicense
+http://github.com/omnisci/golicense
 
 Flags:
 
