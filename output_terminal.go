@@ -112,7 +112,7 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	var colorFunc func(string, ...interface{}) string = fmt.Sprintf
 	icon := iconNormal
 	if o.Config != nil {
-		state := o.Config.Allowed(l)
+		state := o.Config.Allowed(m.Path, l)
 		switch state {
 		case config.StateAllowed:
 			colorFunc = color.GreenString
@@ -137,7 +137,7 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 
 	if o.Plain {
 		fmt.Fprintf(o.Out, fmt.Sprintf(
-			"%s %s\n", o.paddedModule(m), l.String()))
+			"%s %s\n", o.paddedModule(m), l.NameString()))
 		return
 	}
 
@@ -146,7 +146,7 @@ func (o *TermOutput) Finish(m *module.Module, l *license.License, err error) {
 	delete(o.modules, m.Path)
 	o.pauseLive(func() {
 		o.live.Write([]byte(colorFunc(
-			"%s%s %s\n", icon, o.paddedModule(m), l.String())))
+			"%s%s %s\n", icon, o.paddedModule(m), l.NameString())))
 	})
 }
 

@@ -27,6 +27,8 @@ func (f *Finder) License(ctx context.Context, m module.Module) (*license.License
 	if err != nil {
 		return nil, fmt.Errorf("Override license %q SPDX lookup error: %s", v, err)
 	}
-
-	return &license.License{Name: lic.Name, SPDX: lic.ID}, nil
+	return &license.License{
+		Name: lic.Name,
+		SPDX: lic.ID,
+		Text: lic.Text}, nil
 }
