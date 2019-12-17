@@ -1,0 +1,17 @@
+(*config.Config)({
+ Allow: ([]string) (len=3 cap=3) {
+  (string) (len=3) "one",
+  (string) (len=3) "two",
+  (string) (len=10) "three/four"
+ },
+ Deny: ([]string) (len=1 cap=1) {
+  (string) (len=4) "five"
+ },
+ Override: (map[string]string) (len=1) {
+  (string) (len=3) "six": (string) (len=5) "seven"
+ },
+ Translate: (map[string]string) (len=2) {
+  (string) (len=15) "/gopkg.in/(.*)/": (string) (len=13) "github.com/\\1",
+  (string) (len=5) "eight": (string) (len=4) "nine"
+ }
+})

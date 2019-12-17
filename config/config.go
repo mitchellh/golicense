@@ -25,7 +25,11 @@ type Config struct {
 	Override map[string]string `hcl:"override,optional"`
 
 	// Translate is a map that translates one import source into another.
-	// For example, "gopkg.in/(.*)" => "github.com/\1" would translate
+	// If the name begins and ends with `/` (forward slash) then it will
+	// be treated like a regular expression. The destination can use
+	// \1, \2, ... to reference capture groups. Note that these may need
+	// to be escaped.
+	// For example, "/gopkg.in/(.*)/" = "github.com/\\1" would translate
 	// gopkg into github (incorrectly, but the example would work).
 	Translate map[string]string `hcl:"translate,optional"`
 }
