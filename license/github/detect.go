@@ -7,8 +7,8 @@ import (
 	"github.com/google/go-github/v18/github"
 	"github.com/mitchellh/go-spdx"
 	"github.com/mitchellh/golicense/license"
-	"gopkg.in/src-d/go-license-detector.v2/licensedb"
-	"gopkg.in/src-d/go-license-detector.v2/licensedb/filer"
+	"gopkg.in/src-d/go-license-detector.v3/licensedb"
+	"gopkg.in/src-d/go-license-detector.v3/licensedb/filer"
 )
 
 // detect uses go-license-detector as a fallback.
@@ -22,8 +22,8 @@ func detect(rl *github.RepositoryLicense) (*license.License, error) {
 	var highest float32
 	current := ""
 	for id, v := range ms {
-		if v > 0.90 && v > highest {
-			highest = v
+		if v.Confidence > 0.90 && v.Confidence > highest {
+			highest = v.Confidence
 			current = id
 		}
 	}
@@ -68,3 +68,7 @@ func (f *filerImpl) ReadDir(dir string) ([]filer.File, error) {
 }
 
 func (f *filerImpl) Close() {}
+
+func (f *filerImpl) PathsAreAlwaysSlash() bool {
+	return true
+}
