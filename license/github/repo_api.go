@@ -56,17 +56,44 @@ FETCH_RETRY:
 		return nil, err
 	}
 
+	url := getURL(m, matches[1], matches[2], rl)
+
 	// If the license type is "other" then we try to use go-license-detector
 	// to determine the license, which seems to be accurate in these cases.
 	if rl.GetLicense().GetKey() == "other" {
-		return detect(rl)
+		lic, err := detect(rl)
+		if lic != nil {
+			lic.URL = url
+		}
+		return lic, err
 	}
 
 	return &license.License{
 		Name: rl.GetLicense().GetName(),
 		SPDX: rl.GetLicense().GetSPDXID(),
+		URL:  url,
 	}, nil
 }
 
 // githubRe is the regexp matching the package for a GitHub import.
 var githubRe = regexp.MustCompile(`^github\.com/([^/]+)/([^/]+)$`)
+
+func getURL(m module.Module, owner, repo string, rl *github.RepositoryLicense) string {
+	rawURL := rl.GetHTMLURL()
+	if rawURL == "" {
+		return ""
+	}
+
+	base := fmt.Sprintf("github.com/%s/%s/blob/", owner, repo)
+	re := regexp.MustCompile(base + `([^/]+)/`)
+	return re.ReplaceAllString(rawURL, base+getTag(m.Version)+"/")
+}
+
+func getTag(ver string) string {
+	if m := pseudoVerRe.FindStringSubmatch(ver); m != nil {
+		return m[1]
+	}
+	return ver
+}
+
+var pseudoVerRe = regexp.MustCompile(`^v0.0.0-[0-9]+-([a-h0-9]+)$`)
