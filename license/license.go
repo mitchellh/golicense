@@ -6,6 +6,7 @@ package license
 type License struct {
 	Name string // Name is a human-friendly name like "MIT License"
 	SPDX string // SPDX ID of the license, blank if unknown or unavailable
+	URL  string // URL of license
 }
 
 func (l *License) String() string {
