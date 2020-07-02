@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/google/go-github/v18/github"
-	"github.com/mitchellh/golicense/license"
-	"github.com/mitchellh/golicense/module"
+	"github.com/cloudentity/golicense/license"
+	"github.com/cloudentity/golicense/module"
 )
 
 // RepoAPI implements license.Finder and looks up the license of a module

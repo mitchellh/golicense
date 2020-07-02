@@ -40,7 +40,7 @@ The example below runs `golicense` against itself from a recent build.
 ## Installation
 
 To install `golicense`, download the appropriate release for your platform
-from the [releases page](https://github.com/mitchellh/golicense/releases).
+from the [releases page](https://github.com/cloudentity/golicense/releases).
 
 You can also compile from source using Go 1.11 or later using standard
 `go build`. Please ensure that Go modules are enabled (GOPATH not set or

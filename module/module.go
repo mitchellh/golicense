@@ -12,7 +12,7 @@ import (
 // All helper functions on Module work with zero values. See their associated
 // documentation for more information on exact behavior.
 type Module struct {
-	Path    string // Import path, such as "github.com/mitchellh/golicense"
+	Path    string // Import path, such as "github.com/cloudentity/golicense"
 	Version string // Version like "v1.2.3"
 	Hash    string // Hash such as "h1:abcd1234"
 }
