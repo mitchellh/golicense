@@ -87,7 +87,7 @@ Supported configurations:
   * `override` (`map<string, string>`) - A mapping of Go import identifiers
     to translate into a specific license by SPDX ID. This can be used to
 	set the license of imports that `golicense` cannot detect so that reports
-	pass.
+	pass. It's also possible to provide a name if the license has no SPDX ID.
   * `translate` (`map<string, string>`) - A mapping of Go import identifiers
     to translate into alternate import identifiers. Example:
 	"gopkg.in/foo/bar.v2" to "github.com/foo/bar". If the map key starts and
@@ -125,6 +125,69 @@ license is unknown, or a red background is a license is denied. An example
 screenshot is shown below:
 
 ![Excel Report](https://user-images.githubusercontent.com/1299/48667086-84893500-ea83-11e8-925c-7929ed441b1b.png)
+
+
+### SBOM Reporting Output
+
+It's possible to generate report as [SBOM - software bill-of-material](https://cyclonedx.org/)
+
+```
+$ golicense -out-sbom=report.xml ./my-program
+
+```
+
+Sample output:
+
+```xml
+<bom xmlns="http://cyclonedx.org/schema/bom/1.1" version="1" serialNumber="urn:uuid:16d113cb-029e-4ad0-bd68-c4407c6ce285">
+  <components>
+    <component type="library">
+      <name>github.com/Jeffail/gabs</name>
+      <version>v2.5.0</version>
+      <purl>pkg:golang/github.com/Jeffail/gabs@2.5.0</purl>
+      <licenses>
+        <license>
+          <id>MIT</id>
+        </license>
+      </licenses>
+    </component>
+  </components>
+</bom>
+```
+
+Additionally if a licence cannot be resolved, it's possible to set custom licence name and optionally provide a url.
+
+Example:
+
+```json
+{
+  "override": {
+    "github.com/krolaw/zipstream": "Custom"
+  },
+  "sbomLicenseURLs": {
+    "github.com/krolaw/zipstream": "https://github.com/krolaw/zipstream/blob/master/LICENSE"
+  }
+}
+```
+
+Output:
+
+```xml
+<bom xmlns="http://cyclonedx.org/schema/bom/1.1" version="1" serialNumber="urn:uuid:16d113cb-029e-4ad0-bd68-c4407c6ce285">
+  <component type="library">
+    <name>github.com/krolaw/zipstream</name>
+    <version>v0.0.0-20180621105154-0a2661891f94</version>
+    <purl>pkg:golang/github.com/krolaw/zipstream@0.0.0-20180621105154-0a2661891f94</purl>
+    <licenses>
+      <license>
+        <name>Custom</name>
+        <url>https://github.com/krolaw/zipstream/blob/master/LICENSE</url>
+      </license>
+    </licenses>
+  </component> 
+</bom>
+```
+
 
 ## Limitations
 
