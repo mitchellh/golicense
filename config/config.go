@@ -28,6 +28,9 @@ type Config struct {
 	// For example, "gopkg.in/(.*)" => "github.com/\1" would translate
 	// gopkg into github (incorrectly, but the example would work).
 	Translate map[string]string `hcl:"translate,optional"`
+
+	// Allows to set url for a license (applies only when SBOM format is used as the output)
+	SBOMLicenseURLs map[string]string `hcl:"sbomLicenseURLs,optional"`
 }
 
 // Allowed returns the allowed state of a license given the configuration.

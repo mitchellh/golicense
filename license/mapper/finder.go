@@ -2,7 +2,6 @@ package mapper
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/mitchellh/go-spdx"
 	"github.com/mitchellh/golicense/license"
@@ -25,7 +24,8 @@ func (f *Finder) License(ctx context.Context, m module.Module) (*license.License
 	// Look up the license by SPDX ID
 	lic, err := spdx.License(v)
 	if err != nil {
-		return nil, fmt.Errorf("Override license %q SPDX lookup error: %s", v, err)
+		// allow to use custom licence without SPDX ID defined
+		return &license.License{Name: v}, nil
 	}
 
 	return &license.License{Name: lic.Name, SPDX: lic.ID}, nil

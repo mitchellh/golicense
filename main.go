@@ -35,16 +35,20 @@ func main() {
 func realMain() int {
 	termOut := &TermOutput{Out: os.Stdout}
 
-	var flagLicense bool
-	var flagOutXLSX string
+	var (
+		flagLicense bool
+		flagOutXLSX string
+		flagOutSBOM string
+	)
+
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.BoolVar(&flagLicense, "license", true,
 		"look up and verify license. If false, dependencies are\n"+
 			"printed without licenses.")
 	flags.BoolVar(&termOut.Plain, "plain", false, "plain terminal output, no colors or live updates")
 	flags.BoolVar(&termOut.Verbose, "verbose", false, "additional logging to terminal, requires -plain")
-	flags.StringVar(&flagOutXLSX, "out-xlsx", "",
-		"save report in Excel XLSX format to the given path")
+	flags.StringVar(&flagOutXLSX, "out-xlsx", "", "save report in Excel XLSX format to the given path")
+	flags.StringVar(&flagOutSBOM, "out-sbom", "", "save report in SBOM xml format to the given path")
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
 	if len(args) == 0 {
@@ -119,6 +123,13 @@ func realMain() int {
 	if flagOutXLSX != "" {
 		out.Outputs = append(out.Outputs, &XLSXOutput{
 			Path:   flagOutXLSX,
+			Config: &cfg,
+		})
+	}
+
+	if flagOutSBOM != "" {
+		out.Outputs = append(out.Outputs, &SBOMOutput{
+			Path:   flagOutSBOM,
 			Config: &cfg,
 		})
 	}
