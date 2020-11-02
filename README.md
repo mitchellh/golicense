@@ -126,6 +126,40 @@ screenshot is shown below:
 
 ![Excel Report](https://user-images.githubusercontent.com/1299/48667086-84893500-ea83-11e8-925c-7929ed441b1b.png)
 
+### Go Template Output
+
+Using the `-go-template` flag a file with a Go template can be provided as input which will then
+be used to format the output of `golicense`:
+
+```
+$ golicense -go-template=test.tmpl ./my-program
+```
+
+This is an example template:
+
+```
+Dependency,Version,Hash,License,SPDX
+{{ range .Entries -}}
+{{ if .License -}}
+{{.Module.Path}},{{.Module.Version}},{{.Module.Hash}},{{.License.Name}},{{.License.SPDX}}
+{{ else -}}
+{{.Module.Path}},{{.Module.Version}},{{.Module.Hash}},could not determine license,N/A
+{{ end -}}
+{{ end -}}
+```
+
+The above template generates the following output:
+
+```
+Dependency,Version,Hash,License,SPDX
+github.com/mattn/go-isatty,v0.0.4,h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=,MIT License,MIT
+github.com/shogo82148/go-shuffle,v0.0.0-20180218125048-27e6095f230d,h1:rUbV6LJa5RXK3jT/4jnJUz3UkrXzW6cqB+n9Fkbv9jY=,MIT License,MIT
+github.com/stretchr/testify,v1.2.2,h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=,MIT License,MIT
+github.com/dgryski/go-minhash,v0.0.0-20170608043002-7fe510aff544,h1:54Y/2GF52MSJ4n63HWvNDFRtztgm6tq2UrOX61sjGKc=,MIT License,MIT
+github.com/src-d/gcfg,v1.4.0,h1:xXbNR5AlLSA315x2UO+fTSSAXCDf+Ar38/6oyGbDKQ4=,BSD 3-Clause "New" or "Revised" License,BSD-3-Clause
+gopkg.in/russross/blackfriday.v2,v2.0.0,h1:+FlnIV8DSQnT7NZ43hcVKcdJdzZoeCmJj4Ql8gq5keA=,could not determine license,N/A
+```
+
 ## Limitations
 
 There are a number of limitations to `golicense` currently. These are fixable
