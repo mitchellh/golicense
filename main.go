@@ -36,6 +36,7 @@ func realMain() int {
 	termOut := &TermOutput{Out: os.Stdout}
 
 	var flagLicense bool
+	var flagOutMD string
 	var flagOutXLSX string
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.BoolVar(&flagLicense, "license", true,
@@ -43,6 +44,8 @@ func realMain() int {
 			"printed without licenses.")
 	flags.BoolVar(&termOut.Plain, "plain", false, "plain terminal output, no colors or live updates")
 	flags.BoolVar(&termOut.Verbose, "verbose", false, "additional logging to terminal, requires -plain")
+	flags.StringVar(&flagOutMD, "out-md", "",
+		"save report in Markdown format to the given path")
 	flags.StringVar(&flagOutXLSX, "out-xlsx", "",
 		"save report in Excel XLSX format to the given path")
 	flags.Parse(os.Args[1:])
@@ -116,6 +119,12 @@ func realMain() int {
 
 	// Setup the outputs
 	out := &MultiOutput{Outputs: []Output{termOut}}
+	if flagOutMD != "" {
+		out.Outputs = append(out.Outputs, &MDOutput{
+			Path:   flagOutMD,
+			Config: &cfg,
+		})
+	}
 	if flagOutXLSX != "" {
 		out.Outputs = append(out.Outputs, &XLSXOutput{
 			Path:   flagOutXLSX,
